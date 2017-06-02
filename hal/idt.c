@@ -1,4 +1,5 @@
 #include "idt.h"
+#include "exception.h"
 #include "../include/io.h"
 #include "../include/util.h"
 
@@ -54,18 +55,7 @@ void idt_load()
  */
 void idt_default_handler()
 {
-  fb_setpos(0, 0);
-  fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_RED);
-  fb_clrscr();
-  fb_print("[HAL] idt_default_handler: Unhandled Exception!");
-  
-  asm volatile
-    (
-     ".loop:\n"
-     "cli\n"
-     "hlt\n"
-     "jmp .loop\n"
-     );
+  kernel_panic("Unhandled Exception");
 }
 
 /*

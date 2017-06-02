@@ -44,9 +44,6 @@ typedef struct __attribute__((packed)) {
 } VGA_CHAR;
 
 /*----- 関数定義 -----*/
-void outb(u_short port, u_char data);
-u_char inb(u_short port);
-
 void fb_putc(u_char c);
 void fb_print(const char* str);
 void fb_printx(u_int n);

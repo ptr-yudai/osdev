@@ -1,5 +1,5 @@
 INCLUDE_OBJECTS = include/util.o include/io.o
-HAL_OBJECTS = hal/idt.o
+HAL_OBJECTS = hal/idt.o hal/pic.o hal/exception.o
 LOADER_OBJECTS = loader/loader.o loader/pmode.o
 OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
 

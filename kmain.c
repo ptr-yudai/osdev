@@ -19,5 +19,7 @@ void kmain()
   
   fb_print("\nCPU is going to halt. See you...\n");
 
-  //idt_genint(0);
+  // ゼロ除算（例外割り込み）
+  int a = 1, b = 0;
+  a /= b;
 }
