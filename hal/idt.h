@@ -43,6 +43,7 @@ void idt_load();
 void idt_setup_ir(u_int i, void* handler);
 void idt_default_handler();
 void idt_genint(u_char sys);
+void idt_sethandler();
 
 /*----- グローバル変数 -----*/
 IDT_DESC idt[IDT_MAX_INTERRUPTS];

@@ -1,6 +1,23 @@
 #include "pic.h"
 
-
+/*
+ * PICを初期化する
+ */
+void pic_init()
+{
+  // PICを初期化(ICW1)
+  outb(PORT_MASTER_PIC_COMMAND, PIC_ICW1);
+  outb(PORT_SLAVE_PIC_COMMAND , PIC_ICW1);
+  // 割り込みベクタ情報通知(ICW2)
+  outb(PORT_MASTER_PIC_DATA, PIC_MASTER_ICW2);
+  outb(PORT_SLAVE_PIC_DATA , PIC_SLAVE_ICW2 );
+  // IRライン情報通知(ICW3)
+  outb(PORT_MASTER_PIC_DATA, PIC_MASTER_ICW3);
+  outb(PORT_SLAVE_PIC_DATA , PIC_SLAVE_ICW3 );
+  // 動作設定(ICW4)
+  outb(PORT_MASTER_PIC_DATA, PIC_MASTER_ICW4);
+  outb(PORT_SLAVE_PIC_DATA , PIC_SLAVE_ICW4 );
+}
 
 /*
  * I/Oポートでデータを送信する

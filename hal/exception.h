@@ -10,6 +10,11 @@ typedef unsigned char u_char;
 void kernel_panic(const char* msg);
 
 /*----- 割り込みハンドラ定義 -----*/
-//void handler_divided_by_zero_fault();
+void handler_divided_by_zero();
+//void handler_signal_step();
+//void handler_nmi();
+//void handler_breakpoint();
+//void handler_overflow();
+//void handler_bounds_check();
 
 #endif

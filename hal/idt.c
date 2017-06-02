@@ -17,8 +17,18 @@ void idt_init()
   for(i = 0; i < IDT_MAX_INTERRUPTS; i++) {
     idt_setup_ir(i, idt_default_handler);
   }
+  // 用意済みの割り込みハンドラについては設定
+  idt_sethandler();
   // IDTRにIDTをロード
   idt_load();
+}
+
+/*
+ * 用意したハンドラを設定する
+ */
+void idt_sethandler()
+{
+  idt_setup_ir(0, handler_divided_by_zero);
 }
 
 /*
