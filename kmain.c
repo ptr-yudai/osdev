@@ -9,10 +9,10 @@ void mode_protect(void);
 void kmain()
 {
   fb_setpos(0, 0);
-  fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+  fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
+  fb_clrscr();
+
   fb_print("It's running on protected mode!\n");
   
-  
-
   fb_print("\nCPU is going to halt. See you...\n");
 }

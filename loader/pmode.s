@@ -35,10 +35,13 @@ extern kmain
 ;; GDTをロード
 init_pmode:
 	cli
+	;; gdtrにgdt_tocのアドレスをセット
 	lgdt [gdt_toc]
+	;; 保護モードビットを1にする
 	mov eax, cr0
 	or eax, 1
 	mov cr0, eax
+	;; csを使おう
 	jmp 08h:start_pmode
 
 ;; 32ビット保護モードへ移行

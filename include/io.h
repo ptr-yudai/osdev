@@ -43,13 +43,17 @@ typedef struct __attribute__((packed)) {
   u_char bg: 4;
 } VGA_CHAR;
 
+/*----- インポート関数 -----*/
+void outb(u_short port, u_char data);
+
 /*----- エクスポート関数 -----*/
 void fb_putc(u_char c);
 void fb_print(const char* str);
 void fb_printx(u_int n);
+void fb_clrscr(void);
 void fb_setcolor(u_char fg, u_char bg);
-void fb_setpos(u_int row, u_int column);
-//void fb_move_cursor(unsigned short pos);
+u_int fb_setpos(u_int row, u_int column);
+void fb_move_cursor(u_int row, u_int column);
 
 /*----- グローバル変数 -----*/
 VGA_CHAR fb_vga;

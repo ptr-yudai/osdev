@@ -65,6 +65,18 @@ void fb_printx(u_int n)
 }
 
 /*
+ * 画面を現在の背景色で消去する
+ */
+void fb_clrscr(void)
+{
+  int i;
+  // 80列, 25行を削除
+  fb_move_cursor(0, 0);
+  for(i = 0; i < 2000; i++) fb_putc(' ');
+  fb_move_cursor(0, 0);
+}
+
+/*
  * 表示する色を設定する
  *
  * @param fg 文字色
@@ -77,12 +89,29 @@ void fb_setcolor(u_char fg, u_char bg)
 }
 
 /*
- * 表示位置を変更する
+ * 表示位置を変更する（カーソル位置は変わらない）
  *
  * @param row    行番号
  * @param column 列番号
  */
-void fb_setpos(u_int row, u_int column)
+u_int fb_setpos(u_int row, u_int column)
 {
   fb_position = VGA_WIDTH * row + column;
+  return fb_position;
+}
+
+/*
+ * カーソルを移動する（表示位置も変更）
+ *
+ * @param row    行番号
+ * @param column 列番号
+ */
+void fb_move_cursor(u_int row, u_int column)
+{
+  u_int pos = fb_setpos(row, column);
+  // 文字は1行で80バイトまで
+  outb(FB_COMMAND_PORT, FB_HIGH_BYTE_COMMAND);
+  outb(FB_DATA_PORT   , (pos >> 8) & 0x00FF );
+  outb(FB_COMMAND_PORT, FB_LOW_BYTE_COMMAND );
+  outb(FB_DATA_PORT   , pos & 0x00FF);
 }
