@@ -1,4 +1,4 @@
-INCLUDE_OBJECTS = include/util.o include/_io.o include/io.o
+INCLUDE_OBJECTS = include/util.o include/io.o
 HAL_OBJECTS = hal/idt.o
 LOADER_OBJECTS = loader/loader.o loader/pmode.o
 OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
@@ -36,6 +36,7 @@ run:
 clean:
 	rm -rf *.o *~
 	rm -rf ./include/*.o ./include/*~
+	rm -rf ./hal/*.o ./hal/*~
 	rm -rf ./loader/*.o ./loader/*~
 	rm -rf kernel.elf my_os.iso
 	rm -rf ./iso/boot/kernel.elf
