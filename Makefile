@@ -1,6 +1,7 @@
 INCLUDE_OBJECTS = include/util.o include/_io.o include/io.o
+HAL_OBJECTS = hal/idt.o
 LOADER_OBJECTS = loader/loader.o loader/pmode.o
-OBJECTS = $(LOADER_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
+OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
 
 # ビルトツール
 CC = gcc

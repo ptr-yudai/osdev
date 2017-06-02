@@ -1,0 +1,86 @@
+#include "idt.h"
+#include "../include/io.h"
+#include "../include/util.h"
+
+/*
+ * IDTを初期化する
+ */
+void idt_init()
+{
+  int i;
+  // IDTRを設定
+  idtr.size = IDT_MAX_INTERRUPTS * sizeof(IDT_DESC);
+  idtr.base = (IDT_DESC*)&idt[0];
+  memset((void*)&idt[0], 0, IDT_MAX_INTERRUPTS * sizeof(IDT_DESC));
+  // デフォルトハンドラを設定
+  for(i = 0; i < IDT_MAX_INTERRUPTS; i++) {
+    idt_setup_ir(i, idt_default_handler);
+  }
+  // IDTRにIDTをロード
+  idt_load();
+}
+
+/*
+ * 割り込みベクタにハンドラを設定する
+ *
+ * @param i       割り込みベクタテーブルの何番目か
+ * @param handler ハンドラのアドレス
+ */
+void idt_setup_ir(u_int i, void* handler)
+{
+  // ベクタテーブルの範囲外
+  if (i > IDT_MAX_INTERRUPTS) return;
+  // ハンドラがNULLポインタ
+  if (!handler) return;
+  // idtディスクリプタを設定
+  u_int uiBase = (u_int)handler;
+  idt[i].baseLo   = (u_short)(uiBase & 0xFFFF);
+  idt[i].sel      = IDT_INT_SELECTOR;
+  idt[i].reserved = 0;
+  idt[i].flags    = (u_char)(IDT_FLAGS_PRESENT | IDT_FLAGS_INTGATE_32BIT);
+  idt[i].baseHi   = (u_short)((uiBase >> 16) & 0xFFFF);
+}
+
+/*
+ * IDTRにIDTをロードする
+ */
+void idt_load()
+{
+  __asm__ __volatile__ ("lidt idtr");
+}
+
+/*
+ * デフォルトハンドラ
+ */
+void idt_default_handler()
+{
+  fb_setpos(0, 0);
+  fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_RED);
+  fb_clrscr();
+  fb_print("[HAL] idt_default_handler: Unhandled Exception!");
+  
+  asm volatile
+    (
+     ".loop:\n"
+     "cli\n"
+     "hlt\n"
+     "jmp .loop\n"
+     );
+}
+
+/*
+ * 割り込みを発生する
+ *
+ * @param sys 割り込み番号
+ */
+void idt_genint(u_char sys)
+{
+  asm volatile
+    (
+     "movb %0, genint+1\n"
+     "genint:\n"
+     "int $0\n"
+     : /*output*/ : "r"(sys) /* input */ : /* clobbered */
+     );
+}
+
