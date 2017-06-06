@@ -3,8 +3,6 @@
 #include "./hal/idt.h"
 #include "./hal/pic.h"
 
-void mode_protect(void);
-
 /*
  * カーネルメイン
  */
@@ -19,6 +17,12 @@ void kmain()
   // 割り込みを設定
   idt_init();
   pic_init();
+
+  // キーボードIRQ
+  idt_setup_ir(33, irq_keyboard);
+
+  // 入力
+  
   
   fb_print("\nCPU is going to halt. See you...\n");
 

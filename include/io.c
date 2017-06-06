@@ -5,6 +5,104 @@
 #include "util.h"
 #include "../hal/pic.h"
 
+/*--------------------------------------------------*/
+/*
+/*  キー入力関連
+/*
+/*--------------------------------------------------*/
+
+/*
+ * 1文字をキーボードから入力する
+ */
+u_char kb_getc(void)
+{
+  u_char key = KEY_UNKNOWN;
+  // 入力待ち
+  while(key == KEY_UNKNOWN) {
+    key = kb_get_lastcode();
+  }
+  return key;
+}
+
+/*
+ * キーボードコントローラに1バイト送信する
+ *
+ * @param cmd 送信するコマンド
+ */
+void kb_ctrl_sendcmd(u_char cmd)
+{
+  // バッファが空になるのを待つ
+  while(!(kb_ctrl_readstat() & KYBRD_CTRL_STATS_MASK_IN_BUF));
+  outb(KYBRD_CTRL_CMD_REG, cmd);
+}
+
+/*
+ * キーボードエンコーダに1バイト送信する
+ *
+ * @param cmd 送信するコマンド
+ */
+void kb_end_sendcmd(u_char cmd)
+{
+  // バッファが空になるのを待つ
+  while(!(kb_ctrl_readstat() & KYBRD_CTRL_STATS_MASK_IN_BUF));
+  outb(KYBRD_ENC_CMD_REG, cmd);
+}
+
+/*
+ * キーボードコントローラの状態を取得する
+ *
+ * @return in命令から取得した状態
+ */
+u_char kb_ctrl_readstat(void)
+{
+  return inb(KYBRD_CTRL_STATS_REG);
+}
+
+/*
+ * キーボードエンコーダのバッファから取り出す
+ *
+ * @return in命令から取得したバイト
+ */
+u_char kb_enc_readbuf(void)
+{
+  return inb(KYBRD_ENC_INPUT_BUF);
+}
+
+/*
+ * 最後の入力文字を取得
+ *
+ * @return 最後に入力された文字コード
+ */
+u_char kb_get_lastkey(void)
+{
+  u_char key;
+  if (kb_info.lastkey == KEY_UNSET) {
+    key = kb_lookup_keycode(kb_info.lastkey);
+  } else {
+    key = KEY_UNKNOWN;
+  }
+  return key;
+}
+
+/*
+ * キーコードを文字コードに変換する
+ *
+ * @param keycode キーコード
+ * @return 文字コード
+ */
+u_char kb_lookup_keycode(u_char keycode)
+{
+  u_char key;
+  key = KEY_SPACE;
+  return key;
+}
+
+/*--------------------------------------------------*/
+/*
+/*  画面出力関連
+/*
+/*--------------------------------------------------*/
+
 /*
  * 1文字を特定のカーソルに書き込む
  * 

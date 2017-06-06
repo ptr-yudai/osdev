@@ -28,6 +28,7 @@ void idt_init()
  */
 void idt_sethandler()
 {
+  // 例外ハンドラ
   idt_setup_ir(0, handler_divided_by_zero);
 }
 
