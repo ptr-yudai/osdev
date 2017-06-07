@@ -19,10 +19,14 @@ void kmain()
   pic_init();
 
   // キーボードIRQ
-  idt_setup_ir(33, irq_keyboard);
+  //idt_setup_ir(33, irq_keyboard);
 
   // 入力
-  
+  int i;
+  for(i = 0; i < 50; i++) {
+    char c = kb_getc();
+    fb_printx(c);
+  }
   
   fb_print("\nCPU is going to halt. See you...\n");
 
