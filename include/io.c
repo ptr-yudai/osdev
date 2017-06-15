@@ -129,7 +129,7 @@ void kb_ctrl_sendcmd(u_char cmd)
  *
  * @param cmd 送信するコマンド
  */
-void kb_end_sendcmd(u_char cmd)
+void kb_enc_sendcmd(u_char cmd)
 {
   // バッファが空になるのを待つ
   while(!(kb_ctrl_readstat() & KYBRD_CTRL_STATS_MASK_IN_BUF));

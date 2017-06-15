@@ -28,11 +28,32 @@ typedef unsigned char u_char;
 // ICW4
 #define	PIC_MASTER_ICW4 0x01
 #define	PIC_SLAVE_ICW4  0x01
+// OCW2のビットマスク
+#define	PIC_OCW2_MASK_L1     1
+#define	PIC_OCW2_MASK_L2     2
+#define	PIC_OCW2_MASK_L3     4
+#define	PIC_OCW2_MASK_EOI    0x20
+#define	PIC_OCW2_MASK_SL     0x40
+#define	PIC_OCW2_MASK_ROTATE 0x80
+// OCW3のビットマスク
+#define	PIC_OCW3_MASK_RIS  1
+#define	PIC_OCW3_MASK_RIR  2
+#define	PIC_OCW3_MASK_MODE 4
+#define	PIC_OCW3_MASK_SMM  0x20
+#define	PIC_OCW3_MASK_ESMM 0x40
+#define	PIC_OCW3_MASK_D7   0x80
+// コマンド送信
+#define PIC1_REG_COMMAND 0x20
+#define PIC2_REG_COMMAND 0xA0
+// データ送受信
+#define PIC1_REG_DATA 0x21
+#define PIC2_REG_DATA 0xA1
 
 /*----- 関数定義 -----*/
+void pic_sendcmd(u_char cmd, u_char picn);
+void pic_senddata(u_char data, u_char picn);
 void outb(u_short port, u_char data);
 u_char inb(u_short port);
 void pic_init();
-
 
 #endif

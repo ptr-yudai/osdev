@@ -1,5 +1,6 @@
 #include "idt.h"
 #include "exception.h"
+#include "irq.h"
 #include "../include/io.h"
 #include "../include/util.h"
 
@@ -30,6 +31,26 @@ void idt_sethandler()
 {
   // 例外ハンドラ
   idt_setup_ir(0, handler_divided_by_zero);
+  idt_setup_ir(0, handler_divided_by_zero);
+  idt_setup_ir(0, handler_signal_step);
+  idt_setup_ir(0, handler_nmi);
+  idt_setup_ir(0, handler_breakpoint);
+  idt_setup_ir(0, handler_overflow);
+  idt_setup_ir(0, handler_bounds_check);
+  idt_setup_ir(0, handler_invalid_opcode);
+  idt_setup_ir(0, handler_no_device);
+  idt_setup_ir(0, handler_double_fault);
+  idt_setup_ir(0, handler_invalid_tss);
+  idt_setup_ir(0, handler_no_segment);
+  idt_setup_ir(0, handler_stack_fault);
+  idt_setup_ir(0, handler_general_protection_fault);
+  idt_setup_ir(0, handler_page_fault);
+  idt_setup_ir(0, handler_fpu_fault);
+  idt_setup_ir(0, handler_alignment_check);
+  idt_setup_ir(0, handler_machine_check);
+  idt_setup_ir(0, handler_simd_fpu_fault);
+  // PIT
+  idt_setup_ir(32, irq_pit);
 }
 
 /*

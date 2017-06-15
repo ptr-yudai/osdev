@@ -1,10 +1,17 @@
+/*
+ * pic.c - PICの操作関数
+ */
 #include "pic.h"
+#include "hal.h"
+#include "../include/io.h"
 
 /*
  * PICを初期化する
  */
 void pic_init()
 {
+  disable_interrupt();
+
   // PICを初期化(ICW1)
   outb(PORT_MASTER_PIC_COMMAND, PIC_ICW1);
   outb(PORT_SLAVE_PIC_COMMAND , PIC_ICW1);
@@ -17,6 +24,44 @@ void pic_init()
   // 動作設定(ICW4)
   outb(PORT_MASTER_PIC_DATA, PIC_MASTER_ICW4);
   outb(PORT_SLAVE_PIC_DATA , PIC_SLAVE_ICW4 );
+
+  fb_print("[DEBUG] PIC init\n");
+}
+
+/*
+ * PICにコマンドを送る
+ *
+ * @param cmd  コマンド
+ * @param picn PICの番号
+ */
+void pic_sendcmd(u_char cmd, u_char picn)
+{
+  if (picn > 1) return;
+  u_char reg;
+  if (picn == 1) {
+    reg = PIC2_REG_COMMAND;
+  } else {
+    reg = PIC1_REG_COMMAND;
+  }
+  outb(reg, cmd);
+}
+
+/*
+ * PICにデータを送る
+ *
+ * @param data データ
+ * @param picn PICの番号
+ */
+void pic_senddata(u_char data, u_char picn)
+{
+  if (picn > 1) return;
+  u_char reg;
+  if (picn == 1) {
+    reg = PIC2_REG_DATA;
+  } else {
+    reg = PIC1_REG_DATA;
+  }
+  outb(reg, data);
 }
 
 /*

@@ -7,6 +7,7 @@ typedef unsigned short u_short;
 typedef unsigned char u_char;
 
 /*----- 割り込みハンドラ定義 -----*/
-void _cdecl irq_keyboard(void);
+void __attribute__((__cdecl__)) irq_pit(void);
+void __attribute__((__cdecl__)) irq_keyboard(void);
 
 #endif
