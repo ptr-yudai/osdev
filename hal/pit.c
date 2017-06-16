@@ -4,6 +4,9 @@
 #include "pit.h"
 #include "pic.h"
 #include "hal.h"
+#include "idt.h"
+#include "irq.h"
+#include "../include/io.h"
 
 static volatile u_int pit_tick = 0;
 
@@ -12,7 +15,14 @@ static volatile u_int pit_tick = 0;
  */
 void pit_init(void)
 {
-  pit_start_counter(100, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
+  // PIT割り込みハンドラ
+  idt_setup_ir(32, irq_pit);
+
+  // カウンタスタート
+  //pit_start_counter(100, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
+  pit_start_counter(600, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
+
+  fb_print("[DEBUG] PIT init\n");
 }
 
 /*

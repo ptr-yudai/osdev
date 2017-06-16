@@ -7,20 +7,18 @@
 #include "../include/io.h"
 
 /*
- * PIT
+ * PITの割り込みハンドラ
  */
 void __attribute__((__cdecl__)) irq_pit(void)
 {
-  __asm__ __volatile__("addl %esp, 12");
-  __asm__ __volatile__("pusha");
-  
+  enter_interrupt();
+
   pit_increment_tick();
   interrupt_done(0);
 
   fb_print("[DEBUG] IRQ_PIT\n");
 
-  __asm__ __volatile__("popa");
-  __asm__ __volatile__("iret");
+  exit_interrupt();
 }
 
 /*

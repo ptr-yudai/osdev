@@ -22,21 +22,12 @@ void kmain()
   pic_init();
   pit_init();
 
-  // 割り込みを有効化
   enable_interrupt();
 
-  // キーボードIRQ
-  //idt_setup_ir(33, irq_keyboard);
-
-  // 入力
-  /*
-  int i;
-  for(i = 0; i < 50; i++) {
-    kb_getc();
-    //char c = kb_getc();
-    //fb_printx(c);
+  for(;;) {
+    fb_setpos(12, 0);
+    fb_printx(pit_gettick());
   }
-  */
   
   fb_print("\nCPU is going to halt. See you...\n");
 

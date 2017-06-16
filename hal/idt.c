@@ -1,4 +1,5 @@
 #include "idt.h"
+#include "hal.h"
 #include "exception.h"
 #include "irq.h"
 #include "../include/io.h"
@@ -29,28 +30,26 @@ void idt_init()
  */
 void idt_sethandler()
 {
+  enable_interrupt(); 
   // 例外ハンドラ
   idt_setup_ir(0, handler_divided_by_zero);
-  idt_setup_ir(0, handler_divided_by_zero);
-  idt_setup_ir(0, handler_signal_step);
-  idt_setup_ir(0, handler_nmi);
-  idt_setup_ir(0, handler_breakpoint);
-  idt_setup_ir(0, handler_overflow);
-  idt_setup_ir(0, handler_bounds_check);
-  idt_setup_ir(0, handler_invalid_opcode);
-  idt_setup_ir(0, handler_no_device);
-  idt_setup_ir(0, handler_double_fault);
-  idt_setup_ir(0, handler_invalid_tss);
-  idt_setup_ir(0, handler_no_segment);
-  idt_setup_ir(0, handler_stack_fault);
-  idt_setup_ir(0, handler_general_protection_fault);
-  idt_setup_ir(0, handler_page_fault);
-  idt_setup_ir(0, handler_fpu_fault);
-  idt_setup_ir(0, handler_alignment_check);
-  idt_setup_ir(0, handler_machine_check);
-  idt_setup_ir(0, handler_simd_fpu_fault);
-  // PIT
-  idt_setup_ir(32, irq_pit);
+  idt_setup_ir(1, handler_signal_step);
+  idt_setup_ir(2, handler_nmi);
+  idt_setup_ir(3, handler_breakpoint);
+  idt_setup_ir(4, handler_overflow);
+  idt_setup_ir(5, handler_bounds_check);
+  idt_setup_ir(6, handler_invalid_opcode);
+  idt_setup_ir(7, handler_no_device);
+  idt_setup_ir(8, handler_double_fault);
+  idt_setup_ir(10, handler_invalid_tss);
+  idt_setup_ir(11, handler_no_segment);
+  idt_setup_ir(12, handler_stack_fault);
+  idt_setup_ir(13, handler_general_protection_fault);
+  idt_setup_ir(14, handler_page_fault);
+  idt_setup_ir(15, handler_fpu_fault);
+  idt_setup_ir(16, handler_alignment_check);
+  idt_setup_ir(17, handler_machine_check);
+  idt_setup_ir(18, handler_simd_fpu_fault);
 }
 
 /*

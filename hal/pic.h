@@ -28,6 +28,16 @@ typedef unsigned char u_char;
 // ICW4
 #define	PIC_MASTER_ICW4 0x01
 #define	PIC_SLAVE_ICW4  0x01
+// 割り込みマスクレジスタ
+#define	PIC_IMR_MASK_IRQ0    0x01
+#define	PIC_IMR_MASK_IRQ1    0x02
+#define	PIC_IMR_MASK_IRQ2    0x04
+#define	PIC_IMR_MASK_IRQ3    0x08
+#define	PIC_IMR_MASK_IRQ4    0x10
+#define	PIC_IMR_MASK_IRQ5    0x20
+#define	PIC_IMR_MASK_IRQ6    0x40
+#define	PIC_IMR_MASK_IRQ7    0x80
+#define	PIC_IMR_MASK_IRQ_ALL 0xFF
 // OCW2のビットマスク
 #define	PIC_OCW2_MASK_L1     1
 #define	PIC_OCW2_MASK_L2     2
