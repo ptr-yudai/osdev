@@ -15,18 +15,23 @@ void kmain()
   fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
   fb_clrscr();
 
-  fb_print("It's running on protected mode!\n");
-
   // 割り込みを設定
   idt_init();
-  pic_init();
-  pit_init();
+  //pic_init();
+  //pit_init();
+
+  fb_print("[INFO] idtr.base = ");
+  fb_printx((u_int)&idtr);
+  fb_print("\n");
 
   enable_interrupt();
 
   for(;;) {
-    fb_setpos(12, 0);
-    fb_printx(pit_gettick());
+    fb_print(".");
+    int i;
+    for(i = 0; i < 10000; i++) {
+      i = i;
+    }
   }
   
   fb_print("\nCPU is going to halt. See you...\n");

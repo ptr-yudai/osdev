@@ -1,4 +1,5 @@
 #include "exception.h"
+#include "hal.h"
 #include "../include/io.h"
 
 /*
@@ -30,73 +31,91 @@ void kernel_panic(const char* msg)
  */
 void handler_divided_by_zero()
 {
+  disable_interrupt();
   kernel_panic("Divided By Zero");
 }
 void handler_signal_step()
 {
+  disable_interrupt();
   kernel_panic("Single Step Trap");
 }
 void handler_nmi()
 {
+  disable_interrupt();
   kernel_panic("NMI Trap");
 }
 void handler_breakpoint()
 {
+  disable_interrupt();
   kernel_panic("Breakpoint Trap");
 }
 void handler_overflow()
 {
+  disable_interrupt();
   kernel_panic("Overflow Trap");
 }
 void handler_bounds_check()
 {
+  disable_interrupt();
   kernel_panic("Bounds Check Fault");
 }
 void handler_invalid_opcode()
 {
+  disable_interrupt();
   kernel_panic("Invalid Opcode Fault");
 }
 void handler_no_device()
 {
+  disable_interrupt();
   kernel_panic("No Device Fault");
 }
 void handler_double_fault()
 {
+  disable_interrupt();
   kernel_panic("Double Fault");
 }
 void handler_invalid_tss()
 {
+  disable_interrupt();
   kernel_panic("Invalid TSS Fault");
 }
 void handler_no_segment()
 {
+  disable_interrupt();
   kernel_panic("No Segment Fault");
 }
 void handler_stack_fault()
 {
+  disable_interrupt();
   kernel_panic("Stack Fault");
 }
 void handler_general_protection_fault()
 {
+  disable_interrupt();
   kernel_panic("General Protection Fault");
 }
 void handler_page_fault()
 {
+  disable_interrupt();
   kernel_panic("Page Fault");
 }
 void handler_fpu_fault()
 {
+  disable_interrupt();
   kernel_panic("FPU Fault");
 }
 void handler_alignment_check()
 {
+  disable_interrupt();
   kernel_panic("Alignment Check Fault");
 }
 void handler_machine_check()
 {
+  disable_interrupt();
   kernel_panic("Machine Check Abort");
 }
 void handler_simd_fpu_fault()
 {
+  disable_interrupt();
   kernel_panic("SIMD FPU Fault");
 }

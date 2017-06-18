@@ -19,10 +19,10 @@ void idt_init()
   for(i = 0; i < IDT_MAX_INTERRUPTS; i++) {
     idt_setup_ir(i, idt_default_handler);
   }
-  // 用意済みの割り込みハンドラについては設定
-  idt_sethandler();
   // IDTRにIDTをロード
   idt_load();
+  // 用意済みの割り込みハンドラについては設定
+  idt_sethandler();
 }
 
 /*
@@ -30,7 +30,7 @@ void idt_init()
  */
 void idt_sethandler()
 {
-  enable_interrupt(); 
+  enable_interrupt();
   // 例外ハンドラ
   idt_setup_ir(0, handler_divided_by_zero);
   idt_setup_ir(1, handler_signal_step);
@@ -46,10 +46,12 @@ void idt_sethandler()
   idt_setup_ir(12, handler_stack_fault);
   idt_setup_ir(13, handler_general_protection_fault);
   idt_setup_ir(14, handler_page_fault);
-  idt_setup_ir(15, handler_fpu_fault);
-  idt_setup_ir(16, handler_alignment_check);
-  idt_setup_ir(17, handler_machine_check);
-  idt_setup_ir(18, handler_simd_fpu_fault);
+  idt_setup_ir(16, handler_fpu_fault);
+  idt_setup_ir(17, handler_alignment_check);
+  idt_setup_ir(18, handler_machine_check);
+  idt_setup_ir(19, handler_simd_fpu_fault);
+  
+  fb_print("[DEBUG] Set IDT handlers\n");
 }
 
 /*
