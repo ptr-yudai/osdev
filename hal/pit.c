@@ -19,8 +19,8 @@ void pit_init(void)
   idt_setup_ir(32, irq_pit);
 
   // カウンタスタート
-  //pit_start_counter(100, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
-  pit_start_counter(600, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
+  pit_start_counter(100, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
+  //pit_start_counter(600, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
 
   fb_print("[DEBUG] PIT init\n");
 }

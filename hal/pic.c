@@ -24,8 +24,9 @@ void pic_init()
   // 動作設定(ICW4)
   outb(PORT_MASTER_PIC_DATA, PIC_MASTER_ICW4);
   outb(PORT_SLAVE_PIC_DATA , PIC_SLAVE_ICW4 );
-  // IMRをPICに送信
-  outb(PORT_MASTER_PIC_IMR , (~PIC_IMR_MASK_IRQ0) & (~PIC_IMR_MASK_IRQ2));
+  // とりあえず全部のIRQを無効化
+  outb(PORT_MASTER_PIC_IMR, PIC_IMR_MASK_IRQ_ALL);
+  //outb(PORT_MASTER_PIC_IMR , (PIC_IMR_MASK_IRQ_ALL & ~PIC_IMR_MASK_IRQ0));
   outb(PORT_SLAVE_PIC_IMR  , PIC_IMR_MASK_IRQ_ALL);
 
   fb_print("[DEBUG] PIC init\n");
