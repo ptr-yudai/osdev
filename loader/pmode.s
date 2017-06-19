@@ -37,6 +37,7 @@ init_pmode:
 	cli
 	;; gdtrにgdt_tocのアドレスをセット
 	lgdt [gdt_toc]
+	sti
 	;; 保護モードビットを1にする
 	mov eax, cr0
 	or eax, 1
@@ -47,12 +48,12 @@ init_pmode:
 ;; 32ビット保護モードへ移行
 start_pmode:
 	mov ax, 0x10
-	mov ds, ax
+	mov ss, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov ss, ax
-	mov esp, 0x9000
+	mov ds, ax
+	mov esp, 0x90000
 	;; カーネルを呼出
 	call kmain
 .fin:

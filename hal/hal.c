@@ -7,11 +7,11 @@
 void __attribute__((__cdecl__)) interrupt_done(u_int inter_n)
 {
   if (inter_n > 16) return;
-  // 割り込み終了を2番目のPICに通知する
+  // 割り込み終了をSLAVEに通知する
   if (inter_n >= 8) {
     pic_sendcmd(PIC_OCW2_MASK_EOI, 1);
   }
-  // 1番目のPICには常に通知する
+  // MASTERには常に通知する
   pic_sendcmd(PIC_OCW2_MASK_EOI, 0);
 }
 
@@ -36,13 +36,14 @@ void __attribute__((__cdecl__)) disable_interrupt(void)
  */
 inline void enter_interrupt(void)
 {
-  __asm__ __volatile__("pusha");
+  __asm__ __volatile__("pushal");
 }
 /*
  * 割り込みの終了宣言
  */
 inline void exit_interrupt(void)
 {
-  __asm__ __volatile__("popa");
+  __asm__ __volatile__("popal");
+  __asm__ __volatile__("leave");
   __asm__ __volatile__("iret");
 }

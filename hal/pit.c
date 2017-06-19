@@ -16,8 +16,8 @@ static volatile u_int pit_tick = 0;
 void pit_init(void)
 {
   // PIT割り込みハンドラ
-  idt_setup_ir(32, irq_pit);
-
+  idt_setup_ir(32, irq_pit_bridge);
+  
   // カウンタスタート
   pit_start_counter(100, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
   //pit_start_counter(600, PIT_OCW_COUNTER0, PIT_OCW_MODE_SQUAREWAVEGEN);
