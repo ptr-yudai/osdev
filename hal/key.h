@@ -1,10 +1,7 @@
 #ifndef HAL_KEY_H
 #define HAL_KEY_H
 
-typedef unsigned int u_int;
-typedef unsigned long long u_int64;
-typedef unsigned short u_short;
-typedef unsigned char u_char;
+#include "../include/types.h"
 
 /*----- 定数 -----*/
 /* キーボード */
@@ -175,13 +172,12 @@ typedef struct {
 } KEYBOARD_INFO;
 
 /*----- 関数定義 -----*/
-// キー入力
-u_char kb_getc(void);
+void kb_init(void);
 u_char kb_ctrl_readstat(void);
 u_char kb_enc_readbuf(void);
 void kb_ctrl_sendcmd(u_char cmd);
 void kb_enc_sendcmd(u_char cmd);
-u_char kb_get_lastkey(void);
+u_short kb_get_lastkey(void);
 u_int kb_lookup_keycode(u_char keycode);
 
 /*----- グローバル変数 -----*/

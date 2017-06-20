@@ -14,11 +14,13 @@ void kmain()
 
   // 割り込みを設定
   hal_init();
-  //idt_setup_ir(33, irq_keyboard);
-  
-  enable_interrupt();
 
-  sleep(5);
+  char c[3] = "\x00\n\x00";
+  int i;
+  for(i = 0; i < 10; i++) {
+    c[0] = kb_getc();
+    fb_print(c);
+  }
   
   fb_print("\nCPU is going to halt. See you...\n");
 }

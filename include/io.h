@@ -44,6 +44,8 @@ typedef struct __attribute__((packed)) {
 } VGA_CHAR;
 
 /*----- 関数定義 -----*/
+// 文字入力
+u_char kb_getc(void);
 // 画面出力
 void fb_putc(u_char c);
 void fb_print(const char* str);

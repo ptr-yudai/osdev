@@ -18,8 +18,10 @@ irq_pit_bridge:
 	iret
 
 ;; キーボード(IRQ1)
-irq_keyboard_bridge:
+irq_keyboard_bridge:	
+	cli
 	pushad
 	call irq_keyboard
 	popad
+	sti
 	iret

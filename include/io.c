@@ -4,6 +4,29 @@
 #include "io.h"
 #include "util.h"
 #include "../hal/pic.h"
+#include "../hal/key.h"
+
+/*--------------------------------------------------*/
+//
+//  キー入力関連
+//
+/*--------------------------------------------------*/
+/*
+ * 1文字をキーボードから入力する
+ *
+ * @return 入力された文字コード
+ */
+u_char kb_getc(void)
+{
+  u_int key = KEY_UNKNOWN;
+  // 入力待ち
+  while(key == KEY_UNKNOWN) {
+    key = kb_get_lastkey();
+  }
+  kb_info.lastkey = KEY_UNKNOWN;
+  return key;
+}
+
 
 /*--------------------------------------------------*/
 //

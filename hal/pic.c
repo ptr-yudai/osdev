@@ -10,6 +10,7 @@
  */
 void pic_init()
 {
+  u_char irq_mask;
   disable_interrupt();
 
   // PICを初期化(ICW1)
@@ -24,11 +25,11 @@ void pic_init()
   // 動作設定(ICW4)
   outb(PORT_MASTER_PIC_DATA, PIC_MASTER_ICW4);
   outb(PORT_SLAVE_PIC_DATA , PIC_SLAVE_ICW4 );
-  // とりあえず全部のIRQを無効化
-  //outb(PORT_MASTER_PIC_IMR, PIC_IMR_MASK_IRQ_ALL);
-  // IRQ0(PIT)だけを有効化
-  outb(PORT_MASTER_PIC_IMR, (PIC_IMR_MASK_IRQ_ALL & ~PIC_IMR_MASK_IRQ0));
-  //outb(PORT_MASTER_PIC_IMR, (PIC_IMR_MASK_IRQ_ALL & ~PIC_IMR_MASK_IRQ1));
+  // IRQ0(PIT)とIRQ1(Key)だけを有効化
+  irq_mask = PIC_IMR_MASK_IRQ_ALL;
+  irq_mask &= ~PIC_IMR_MASK_IRQ0;
+  irq_mask &= ~PIC_IMR_MASK_IRQ1;
+  outb(PORT_MASTER_PIC_IMR, irq_mask);
   outb(PORT_SLAVE_PIC_IMR , PIC_IMR_MASK_IRQ_ALL);
 
   fb_print("[DEBUG] PIC init\n");

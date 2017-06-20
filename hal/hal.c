@@ -3,15 +3,18 @@
 #include "irq.h"
 #include "pic.h"
 #include "pit.h"
+#include "key.h"
 
 /*
  * 各種初期化を実行する
  */
 void hal_init(void)
 {
-  idt_init();
-  pic_init();
-  pit_init();
+  idt_init();  // 割り込みテーブル
+  pic_init();  // PIC
+  pit_init();  // タイマ
+  kb_init();   // キーボード
+  enable_interrupt();
 }
 
 /*
