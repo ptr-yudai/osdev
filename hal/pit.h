@@ -1,10 +1,7 @@
 #ifndef HAL_PIT_H
 #define HAL_PIT_H
 
-typedef unsigned int u_int;
-typedef unsigned long long u_int64;
-typedef unsigned short u_short;
-typedef unsigned char u_char;
+#include "../include/types.h"
 
 /*----- 定数 -----*/
 // 操作コマンドのビットマスク

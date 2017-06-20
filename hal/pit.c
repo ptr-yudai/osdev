@@ -8,7 +8,7 @@
 #include "irq.h"
 #include "../include/io.h"
 
-static volatile u_int pit_tick = 0;
+static u_int pit_tick = 0;
 
 /*
  * PITを初期化する

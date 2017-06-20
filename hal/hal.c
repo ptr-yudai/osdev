@@ -1,5 +1,18 @@
 #include "hal.h"
+#include "idt.h"
+#include "irq.h"
 #include "pic.h"
+#include "pit.h"
+
+/*
+ * 各種初期化を実行する
+ */
+void hal_init(void)
+{
+  idt_init();
+  pic_init();
+  pit_init();
+}
 
 /*
  * 割り込みの終了を受け取る
