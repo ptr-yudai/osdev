@@ -34,7 +34,7 @@ void kb_init(void)
 {
   kb_info.lastkey = KEY_UNKNOWN;
   // IRQを設定
-  idt_setup_ir(33, irq_keyboard);
+  idt_setup_ir(33, irq_keyboard_bridge);
 }
 
 /*

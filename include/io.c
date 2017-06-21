@@ -20,7 +20,7 @@ u_char kb_getc(void)
 {
   u_int key = KEY_UNKNOWN;
   // 入力待ち
-  while(key == KEY_UNKNOWN) {
+  while(key == KEY_UNKNOWN || key == 0x0000) {
     key = kb_get_lastkey();
   }
   kb_info.lastkey = KEY_UNKNOWN;

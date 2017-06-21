@@ -31,8 +31,8 @@ void irq_keyboard(void)
     if (code == 0xE0 || code == 0xE1) {
     } else {
       kb_info.lastkey = code;
-      fb_printx(kb_lookup_keycode(kb_info.lastkey));
-      fb_print("\n");
+      //fb_printx(kb_lookup_keycode(kb_info.lastkey));
+      //fb_print("\n");
     }
   }
 

@@ -15,7 +15,7 @@ void kmain()
   // 割り込みを設定
   hal_init();
 
-  char c[3] = "\x00\n\x00";
+  char c[2] = "\x00\x00";
   int i;
   for(i = 0; i < 10; i++) {
     c[0] = kb_getc();
