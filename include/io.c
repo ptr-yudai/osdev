@@ -20,13 +20,37 @@ u_char kb_getc(void)
 {
   u_int key = KEY_UNKNOWN;
   // 入力待ち
-  while(key == KEY_UNKNOWN || key == 0x0000) {
+  while(key == KEY_UNKNOWN || key == 0x00) {
     key = kb_get_lastkey();
+    key = kb_key2ascii_jp(key);
   }
   kb_info.lastkey = KEY_UNKNOWN;
   return key;
 }
 
+/*
+ * 改行までをキーボードから入力する
+ *
+ * @param *str 入力を格納するポインタ
+ */
+void kb_getline(char* str)
+{
+  char buf[2] = "\x00\x00";
+  char* p_result = str;
+  while(1) {
+    // 入力して表示
+    buf[0] = kb_getc();
+    fb_print(buf);
+    // ENTERなら終了
+    if (buf[0] == KEY_RETURN) {
+      fb_print("\n");
+      break;
+    }
+    // 次へ
+    *p_result = buf[0];
+    p_result++;
+  }
+}
 
 /*--------------------------------------------------*/
 //

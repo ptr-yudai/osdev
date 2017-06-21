@@ -30,13 +30,54 @@ void irq_keyboard(void)
 
     if (code == 0xE0 || code == 0xE1) {
     } else {
-      kb_info.lastkey = code;
-      //fb_printx(kb_lookup_keycode(kb_info.lastkey));
-      //fb_print("\n");
+      if (code & 0x80) {
+	// キー離す
+	code -= 0x80;
+	switch(kb_lookup_keycode(code)) {
+	case KEY_LCTRL: // CTRLキー離す
+	case KEY_RCTRL:
+	  kb_info.flg_ctrl = 0;
+	  break;
+	case KEY_LSHIFT: // SHIFTキー離す
+	case KEY_RSHIFT:
+	  kb_info.flg_shift = 0;
+	  break;
+	case KEY_LALT: // ALTキー離す
+	case KEY_RALT:
+	  kb_info.flg_alt = 0;
+	  break;
+	}
+      } else {
+	// キー押す
+	kb_info.lastkey = code;
+
+	//fb_printx(code);
+
+	switch(kb_lookup_keycode(code)) {
+	case KEY_LCTRL: // CTRLキー押す
+	case KEY_RCTRL:
+	  kb_info.flg_ctrl = 1;
+	  break;
+	case KEY_LSHIFT: // SHIFTキー押す
+	case KEY_RSHIFT:
+	  kb_info.flg_shift = 1;
+	  break;
+	case KEY_LALT: // ALTキー押す
+	case KEY_RALT:
+	  kb_info.flg_alt = 1;
+	  break;
+	case KEY_CAPSLOCK: // CAPSキー押す
+	  kb_info.flg_caps = ~kb_info.flg_caps;
+	  break;
+	case KEY_SCROLLLOCK: // SCROLLキー押す
+	  kb_info.flg_scr = ~kb_info.flg_scr;
+	  break;
+	}
+      }
     }
   }
 
-  interrupt_done(0);
-
   //fb_print("[DEBUG] IRQ_Keyboard\n");
+
+  interrupt_done(0);
 }

@@ -53,3 +53,14 @@ void *memset(void *to, u_char ch, u_int n)
   }
   return to;
 }
+
+/*
+ * isascii - アスキー文字かを判別する
+ *
+ * @param c 判別する文字
+ * @return ASCIIなら1、それ以外は0
+ */
+u_int isascii(u_int c)
+{
+  return c < 0x80 ? 1 : 0;
+}

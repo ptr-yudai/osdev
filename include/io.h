@@ -1,10 +1,7 @@
 #ifndef INCLUDE_IO_H
 #define INCLUDE_IO_H
 
-typedef unsigned int u_int;
-typedef unsigned long long u_int64;
-typedef unsigned short u_short;
-typedef unsigned char u_char;
+#include "types.h"
 
 /*----- 定数 -----*/
 /* VGA設定 */
@@ -46,6 +43,7 @@ typedef struct __attribute__((packed)) {
 /*----- 関数定義 -----*/
 // 文字入力
 u_char kb_getc(void);
+void kb_getline(char* str);
 // 画面出力
 void fb_putc(u_char c);
 void fb_print(const char* str);

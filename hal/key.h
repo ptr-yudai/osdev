@@ -169,6 +169,12 @@ enum KEYCODE {
 // キーボード入力情報
 typedef struct {
   u_int lastkey;  // 最後にスキャンされた文字コード
+  u_char flg_ctrl : 1;
+  u_char flg_shift: 1;
+  u_char flg_alt  : 1;
+  u_char flg_caps : 1;
+  u_char flg_num  : 1;
+  u_char flg_scr  : 1;
 } KEYBOARD_INFO;
 
 /*----- 関数定義 -----*/
@@ -179,6 +185,7 @@ void kb_ctrl_sendcmd(u_char cmd);
 void kb_enc_sendcmd(u_char cmd);
 u_short kb_get_lastkey(void);
 u_int kb_lookup_keycode(u_char keycode);
+u_char kb_key2ascii_jp(u_int code);
 
 /*----- グローバル変数 -----*/
 KEYBOARD_INFO kb_info;
