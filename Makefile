@@ -1,6 +1,6 @@
 INCLUDE_OBJECTS = include/util.o include/io.o include/time.o
 HAL_OBJECTS = hal/hal.o hal/idt.o hal/pic.o hal/pit.o hal/exception.o hal/irq.o hal/irq_bridge.o hal/key.o
-LOADER_OBJECTS = loader/loader.o loader/pmode.o
+LOADER_OBJECTS = loader/loader.o loader/memory.o loader/pmode.o
 OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
 
 # ビルトツール
