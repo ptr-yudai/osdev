@@ -1,5 +1,5 @@
-bits 32
-	
+bits 16
+
 section .data
 align 4
 
@@ -24,7 +24,7 @@ gdt_data:
 	db 0				; base high
 
 ;; GDT構造体
-gdt_toc: 
+gdt_toc:
 	dw 8*3			 	; GDTのサイズ
 	dd gdt_data 			; GDTの先頭アドレス
 
@@ -37,8 +37,7 @@ init_pmode:
 	cli
 	;; gdtrにgdt_tocのアドレスをセット
 	lgdt [dword gdt_toc]
-	sti
-	;; 保護モードビットを1にする
+	sti	;; 保護モードビットを1にする
 	mov eax, cr0
 	or eax, 1
 	mov cr0, eax
@@ -46,6 +45,7 @@ init_pmode:
 	jmp dword 08h:start_pmode
 
 ;; 32ビット保護モードへ移行
+bits 32
 start_pmode:
 	mov ax, 0x10
 	mov ss, ax

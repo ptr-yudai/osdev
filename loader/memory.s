@@ -1,4 +1,4 @@
-bits 32
+bits 16
 
 global GetMemorySize
 global GetMemoryMap
@@ -16,7 +16,7 @@ GetMemorySize:
 	push edx
 	xor ecx, ecx		; ecx = 0
 	xor edx, edx 		; edx = 0
-	mov ax, 0xe801
+	mov eax, 0xe801
 	int 0x15		; <---------------------------- FAULT!
 	jc .Perror
 	cmp ah, 0x86		; サポートしていない

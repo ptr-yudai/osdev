@@ -14,8 +14,6 @@ extern kmain
 extern GetMemorySize
 extern GetMemoryMap
 
-bits 32
-
 ;;; textセクションの開始
 section .text
 align 4
@@ -24,23 +22,24 @@ align 4
 	dd FLAGS
 	dd CHECKSUM
 
+bits 16
 ;; エントリーポイント
 loader:
 	mov esp, kstack + KERNEL_STACK_SIZE
 	push eax
 	push ebx
 	; メモリマップを取得
-	xor ax, ax
-	mov es, ax
-	mov dx, ax
-	push edi
-	mov eax, MemoryMapEntry
-	mov edi, eax
+	;xor ax, ax
+	;mov es, ax
+	;mov dx, ax
+	;push edi
+	;mov eax, MemoryMapEntry
+	;mov edi, eax
 	;call GetMemoryMap
-	call GetMemorySize
-	pop edi
+	;call GetMemorySize
+	;pop edi
 	; 保護モードに移行
-	jmp init_pmode
+	jmp dword init_pmode
 
 ;;; dataセクションの開始
 section .data
