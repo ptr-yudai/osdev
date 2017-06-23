@@ -17,7 +17,7 @@ GetMemorySize:
 	xor ecx, ecx		; ecx = 0
 	xor edx, edx 		; edx = 0
 	mov ax, 0xe801
-	int 0x15
+	int 0x15		; <---------------------------- FAULT!
 	jc .Perror
 	cmp ah, 0x86		; サポートしていない
 	je .Perror
@@ -41,14 +41,13 @@ GetMemorySize:
 ;;
 GetMemoryMap:
 	; 最初のエントリを取得する
+	pushad
 	xor ebx, ebx
-	xor bp, bp
+	xor ebp, ebp
 	mov edx, 'PAMS'
-	mov eax, 0xe820
-	mov [es:edi + 20], dword 1
+	mov eax, 0xE820
 	mov ecx, 24		; sizeof(memmap_entry)
-	ret
-	int 0x15
+	int 0x15		; <---------------------------- FAULT!
 	jc short .Perror
 	cmp eax, 'PAMS'
 	jne short .Perror

@@ -36,7 +36,8 @@ loader:
 	push edi
 	mov eax, MemoryMapEntry
 	mov edi, eax
-	call GetMemoryMap
+	;call GetMemoryMap
+	call GetMemorySize
 	pop edi
 	; 保護モードに移行
 	jmp init_pmode
