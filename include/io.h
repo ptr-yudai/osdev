@@ -52,6 +52,7 @@ void fb_clrscr(void);
 void fb_setcolor(u_char fg, u_char bg);
 u_int fb_setpos(u_int row, u_int column);
 void fb_move_cursor(u_int row, u_int column);
+void fb_redraw_cursor(void);
 // サウンド
 //void snd_playfreq(u_int freq);
 

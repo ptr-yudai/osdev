@@ -1,4 +1,4 @@
-bits 16
+bits 32
 
 global GetMemorySize
 global GetMemoryMap
@@ -43,9 +43,10 @@ GetMemoryMap:
 	; 最初のエントリを取得する
 	pushad
 	xor ebx, ebx
-	xor ebp, ebp
+	xor bp, bp
 	mov edx, 'PAMS'
 	mov eax, 0xE820
+	mov [es:di + 20], dword 1
 	mov ecx, 24		; sizeof(memmap_entry)
 	int 0x15		; <---------------------------- FAULT!
 	jc short .Perror
@@ -58,6 +59,7 @@ GetMemoryMap:
 	mov edx, 'PAMS'
 	mov ecx, 24
 	mov eax, 0xe820
+	mov [es:di + 20], dword 1
 	int 0x15
 .Pstart:
 	jcxz .Pskip

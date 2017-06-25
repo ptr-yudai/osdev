@@ -1,4 +1,4 @@
-bits 16
+bits 32
 
 section .data
 align 4
@@ -35,13 +35,14 @@ extern kmain
 ;; GDTをロード
 init_pmode:
 	cli
-	;; gdtrにgdt_tocのアドレスをセット
-	lgdt [dword gdt_toc]
-	sti	;; 保護モードビットを1にする
+	; gdtrにgdt_tocのアドレスをセット
+	mov eax, gdt_toc
+	lgdt [eax]
+	; 保護モードビットを1にする
 	mov eax, cr0
 	or eax, 1
 	mov cr0, eax
-	;; csを使おう
+	; csを使おう
 	jmp dword 08h:start_pmode
 
 ;; 32ビット保護モードへ移行
@@ -55,6 +56,7 @@ start_pmode:
 	mov ds, ax
 	mov esp, 0x90000
 	;; カーネルを呼出
+	sti
 	call kmain
 .fin:
 	hlt

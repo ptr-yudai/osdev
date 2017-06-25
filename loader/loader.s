@@ -22,22 +22,13 @@ align 4
 	dd FLAGS
 	dd CHECKSUM
 
-bits 16
+bits 32
 ;; エントリーポイント
 loader:
 	mov esp, kstack + KERNEL_STACK_SIZE
+	push esp
 	push eax
 	push ebx
-	; メモリマップを取得
-	;xor ax, ax
-	;mov es, ax
-	;mov dx, ax
-	;push edi
-	;mov eax, MemoryMapEntry
-	;mov edi, eax
-	;call GetMemoryMap
-	;call GetMemorySize
-	;pop edi
 	; 保護モードに移行
 	jmp dword init_pmode
 

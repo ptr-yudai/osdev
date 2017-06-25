@@ -37,21 +37,37 @@ void kb_getline(char* str)
 {
   char buf[2] = "\x00\x00";
   char* p_result = str;
-  while(1) {
+  char* p_tmp;
+  char is_end = 1;
+  while(is_end) {
     // 入力して表示
     buf[0] = kb_getc();
-    fb_print(buf);
-    // ENTERなら終了
-    if (buf[0] == KEY_RETURN) {
+    switch(buf[0]) {
+    case KEY_RETURN:
+      // ENTERなら終了
       fb_print("\n");
+      is_end = 0;
       break;
+    case KEY_BACKSPACE:
+      // BACKSPACEなら削除して詰める
+      for(p_tmp = p_result--; *p_tmp; p_tmp++) {
+	*p_tmp = *(p_tmp + 1);
+      }
+      *p_result = 0;
+      // 再表示
+      fb_position--; fb_redraw_cursor();
+      fb_putc(' ');
+      fb_position--; fb_redraw_cursor();
+      break;
+    default:
+      // 普通の文字
+      fb_print(buf);
+      *p_result = buf[0];
+      p_result++;
     }
-    // 次へ
-    *p_result = buf[0];
-    p_result++;
   }
 }
-
+  
 /*--------------------------------------------------*/
 //
 //  画面出力関連
@@ -78,6 +94,7 @@ void fb_putc(u_char c)
     // カーソルを進める
     fb_position++;
   }
+  fb_redraw_cursor();
 }
 
 /*
@@ -161,10 +178,18 @@ u_int fb_setpos(u_int row, u_int column)
  */
 void fb_move_cursor(u_int row, u_int column)
 {
-  u_int pos = fb_setpos(row, column);
+  fb_setpos(row, column);
+  fb_redraw_cursor();
+}
+
+/*
+ * カーソルを更新する
+ */
+void fb_redraw_cursor(void)
+{
   // 文字は1行で80バイトまで
   outb(FB_COMMAND_PORT, FB_HIGH_BYTE_COMMAND);
-  outb(FB_DATA_PORT   , (pos >> 8) & 0x00FF );
+  outb(FB_DATA_PORT   , (fb_position >> 8) & 0x00FF );
   outb(FB_COMMAND_PORT, FB_LOW_BYTE_COMMAND );
-  outb(FB_DATA_PORT   , pos & 0x00FF);
+  outb(FB_DATA_PORT   , fb_position & 0x00FF);
 }

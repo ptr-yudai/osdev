@@ -2,3 +2,7 @@
 *.o
 *.elf
 *.iso
+objdump.txt
+peda-session-*
+kernel.*
+

@@ -158,10 +158,16 @@ u_char kb_key2ascii_jp(u_int code)
       case '7': key = KEY_QUOTE; break;
       case '8': key = KEY_LEFTPARENTHESIS; break;
       case '9': key = KEY_RIGHTPARENTHESIS; break;
-      case KEY_COMMA: key = KEY_LESS; break;
-      case KEY_DOT  : key = KEY_GREATER; break;
-      case KEY_SLASH: key = KEY_QUESTION; break;
+      case KEY_MINUS : key = KEY_EQUAL; break;
+      case KEY_CARRET: key = KEY_TILDE; break;
+      case KEY_SLASH : key = KEY_QUESTION; break;
+      case KEY_AT    : key = KEY_GRAVE; break;
+      case KEY_LEFTBRACKET : key = KEY_LEFTCURL; break;
       case KEY_SEMICOLON: key = KEY_PLUS; break;
+      case KEY_COLON : key = KEY_ASTERISK; break;
+      case KEY_RIGHTBRACKET: key = KEY_RIGHTCURL; break;
+      case KEY_COMMA : key = KEY_LESS; break;
+      case KEY_DOT : key = KEY_GREATER; break;
       }
     }
   }
