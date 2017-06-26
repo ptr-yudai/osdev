@@ -54,9 +54,13 @@ start_pmode:
 	mov fs, ax
 	mov gs, ax
 	mov ds, ax
+	pop ebx
+	pop eax
 	mov esp, 0x90000
 	;; カーネルを呼出
 	sti
+	push eax
+	push ebx
 	call kmain
 .fin:
 	hlt
