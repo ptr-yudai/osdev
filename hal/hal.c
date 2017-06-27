@@ -1,19 +1,22 @@
 #include "hal.h"
+#include "../include/multiboot.h"
 #include "idt.h"
 #include "irq.h"
 #include "pic.h"
 #include "pit.h"
 #include "key.h"
+#include "mem.h"
 
 /*
  * 各種初期化を実行する
  */
-void hal_init(void)
+void hal_init(/*multiboot_info_t* mbd*/)
 {
   idt_init();  // 割り込みテーブル
   pic_init();  // PIC
   pit_init();  // タイマ
   kb_init();   // キーボード
+  //mem_init();  // 物理メモリ
   enable_interrupt();
 }
 

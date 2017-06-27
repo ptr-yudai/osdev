@@ -10,9 +10,7 @@ global loader
 ;; 外部関数
 extern init_pmode
 extern kmain
-extern GetMemorySize
-extern GetMemoryMap
-
+	
 ;;; textセクションの開始
 section .text
 align 4

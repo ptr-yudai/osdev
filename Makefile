@@ -1,5 +1,5 @@
 INCLUDE_OBJECTS = include/util.o include/io.o include/time.o
-HAL_OBJECTS = hal/hal.o hal/idt.o hal/pic.o hal/pit.o hal/exception.o hal/irq.o hal/irq_bridge.o hal/key.o
+HAL_OBJECTS = hal/hal.o hal/idt.o hal/pic.o hal/pit.o hal/exception.o hal/irq.o hal/irq_bridge.o hal/key.o hal/mem.o
 LOADER_OBJECTS = loader/loader.o loader/pmode.o
 OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
 
@@ -46,5 +46,5 @@ clean:
 	rm -rf ./include/*.o ./include/*~
 	rm -rf ./hal/*.o ./hal/*~
 	rm -rf ./loader/*.o ./loader/*~
-	rm -rf kernel.elf my_os.iso
+	rm -rf kernel.* my_os.iso objdump.txt
 	rm -rf ./iso/boot/kernel.elf

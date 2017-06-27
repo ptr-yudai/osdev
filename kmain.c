@@ -15,7 +15,7 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   fb_clrscr();
 
   // 割り込みを設定
-  hal_init();
+  hal_init(/*mbd*/);
 
   fb_print("Magic Number: ");
   fb_printx(magic);
