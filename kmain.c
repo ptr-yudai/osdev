@@ -28,6 +28,10 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   fb_print("\nmbd->mmap_addr  = ");
   fb_printx(mbd->mmap_addr);
   fb_print("\n");
+
+  char c[64];
+  kb_getline(c);
+  fb_print(c);
   
   fb_print("\nCPU is going to halt. See you...\n");
 }

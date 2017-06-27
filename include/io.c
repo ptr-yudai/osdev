@@ -49,6 +49,8 @@ void kb_getline(char* str)
       is_end = 0;
       break;
     case KEY_BACKSPACE:
+      // 1文字目は無視
+      if (p_result <= str) break;
       // BACKSPACEなら削除して詰める
       for(p_tmp = p_result--; *p_tmp; p_tmp++) {
 	*p_tmp = *(p_tmp + 1);
