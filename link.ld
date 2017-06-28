@@ -3,6 +3,7 @@ ENTRY(loader)
 
 SECTIONS {
 	 . = 0x00100000;
+	 _KERNEL_TOP = .;
 
 	 /* 機械語領域 */
 	 .text ALIGN (0x1000):
@@ -28,4 +29,6 @@ SECTIONS {
 		*(COMMON)
 		*(.bss)
 	 }
+
+	 _KERNEL_BOTTOM = .;
 }

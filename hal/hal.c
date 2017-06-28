@@ -1,5 +1,4 @@
 #include "hal.h"
-#include "../include/multiboot.h"
 #include "idt.h"
 #include "irq.h"
 #include "pic.h"
@@ -10,13 +9,13 @@
 /*
  * 各種初期化を実行する
  */
-void hal_init(/*multiboot_info_t* mbd*/)
+void hal_init(multiboot_info_t* mbd)
 {
   idt_init();  // 割り込みテーブル
   pic_init();  // PIC
   pit_init();  // タイマ
   kb_init();   // キーボード
-  //mem_init();  // 物理メモリ
+  mem_init(mbd->mem_lower);  // 物理メモリ
   enable_interrupt();
 }
 
