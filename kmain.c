@@ -34,15 +34,15 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   int i;
   void *p[10];
   for(i = 0; i < 5; i++) {
-    p[i] = mem_alloc_block();
+    p[i] = mem_alloc_blocks(4);
     fb_print("alloc --> "); fb_printx((u_int)p[i]); fb_print("\n");
   }
   for(i = 2; i < 5; i++) {
-    mem_free_block(p[i]);
+    mem_free_blocks(p[i], 4);
     fb_print("free --> "); fb_printx((u_int)p[i]); fb_print("\n");
   }
   for(i = 5; i < 10; i++) {
-    p[i] = mem_alloc_block();
+    p[i] = mem_alloc_blocks(3);
     fb_print("alloc --> "); fb_printx((u_int)p[i]); fb_print("\n");
   }
   

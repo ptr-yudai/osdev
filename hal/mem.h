@@ -21,8 +21,8 @@ typedef struct {
 /*----- 関数定義 -----*/
 void mem_init(u_int memsize);
 u_int mem_find_blocks(u_int size);
-void* mem_alloc_block(void);
-void mem_free_block(void* addr);
+void* mem_alloc_blocks(u_int size);
+void mem_free_blocks(void* addr, u_int size);
 void mem_enable_bit(u_int num);
 void mem_disable_bit(u_int num);
 u_char mem_test_bit(u_int num);

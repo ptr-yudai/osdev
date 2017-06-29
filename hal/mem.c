@@ -29,15 +29,17 @@ void mem_init(u_int memsize)
 /*
  * メモリ上にブロックを確保する
  *
+ * @param size 確保するサイズ
  * @return 確保したブロックのアドレス
  */
-void* mem_alloc_block(void)
+void* mem_alloc_blocks(u_int size)
 {
+  u_int i;
   // ブロックを確保
-  u_int frame = mem_find_blocks(1);
+  u_int frame = mem_find_blocks(size);
   if (frame == 0) return 0;
   // 使用済みフラグを立てる
-  mem_enable_bit(frame);
+  for(i = 0; i < size; i++) mem_enable_bit(frame + i);
   // アドレスとして返す
   u_int addr = frame * MEMORY_BLOCK_SIZE;
   return (void*)addr;
@@ -47,12 +49,14 @@ void* mem_alloc_block(void)
  * メモリ上のブロックを解放する
  *
  * @param addr mallocしたアドレス
+ * @param size mallocしたサイズ
  */
-void mem_free_block(void* addr)
+void mem_free_blocks(void* addr, u_int size)
 {
+  u_int i;
   u_int frame = (u_int)addr / MEMORY_BLOCK_SIZE;
   // 使用済みフラグを下げる
-  mem_disable_bit(frame);
+  for(i = 0; i < size; i++) mem_disable_bit(frame + i);
 }
 
 /*
