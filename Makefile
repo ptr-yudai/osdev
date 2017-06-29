@@ -30,7 +30,7 @@ kernel.elf: link.ld $(OBJECTS)
 
 ## 実行する
 run:
-	qemu-system-i386 -boot d -cdrom my_os.iso -m 512
+	qemu-system-i386 -boot d -cdrom my_os.iso -m 512M
 
 ## デバッグする
 debug:
@@ -38,7 +38,7 @@ debug:
 	objcopy --strip-debug kernel.elf
 	objcopy -O binary kernel.elf kernel.bin
 	objdump -D -mi386 -M intel -Maddr16,data16 kernel.elf > objdump.txt
-	qemu-system-i386 -s -S -boot d -cdrom my_os.iso -m 512
+	qemu-system-i386 -s -S -boot d -cdrom my_os.iso -m 512M
 
 # 削除する
 clean:

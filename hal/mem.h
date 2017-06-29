@@ -5,7 +5,7 @@
 
 /*----- 定数 -----*/
 #define MEMORY_KERNEL_START 0x00100000
-#define MEMORY_BLOCK_SIZE 4 * 1024    // 4KB
+#define MEMORY_BLOCK_SIZE   4096    // 4KB
 
 /*----- 構造体 -----*/
 // ビットマップ情報

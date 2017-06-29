@@ -19,8 +19,13 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   // 割り込みを設定
   hal_init(mbd);
 
+  // 各種情報を表示
   fb_print("Magic Number: ");
   fb_printx(magic); fb_print("\n");
+  fb_print("Memory Size: ");
+  fb_printx(mbd->mem_upper / 1024); fb_print(" MB\n");
+  fb_printx(pm_info.blocks_max); fb_print(" blocks are available for malloc.\n");
+  
 
   fb_print("Bitmap table is located at ");
   fb_printx((u_int)pm_info.mem_map); fb_print("\n");

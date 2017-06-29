@@ -14,8 +14,9 @@
  */
 void mem_init(u_int memsize)
 {
+  // 単位はキロバイト
   pm_info.mem_size     = memsize;
-  pm_info.blocks_max   = memsize / MEMORY_BLOCK_SIZE;
+  pm_info.blocks_max   = memsize * 1024 / MEMORY_BLOCK_SIZE;
   pm_info.blocks_used  = 0;
   pm_info.blocks_free  = pm_info.blocks_max;
   pm_info.mem_map      = (u_int*)(__KERNEL_TOP + sizeof_kernel());
@@ -38,7 +39,7 @@ void* mem_alloc_block(void)
   // 使用済みフラグを立てる
   mem_enable_bit(frame);
   // アドレスとして返す
-  u_int addr = frame * 32;
+  u_int addr = frame * MEMORY_BLOCK_SIZE;
   return (void*)addr;
 }
 
@@ -49,7 +50,7 @@ void* mem_alloc_block(void)
  */
 void mem_free_block(void* addr)
 {
-  u_int frame = (u_int)addr / 32;
+  u_int frame = (u_int)addr / MEMORY_BLOCK_SIZE;
   // 使用済みフラグを下げる
   mem_disable_bit(frame);
 }
@@ -69,13 +70,13 @@ u_int mem_find_blocks(u_int size)
     if (pm_info.mem_map[i] != 0xFFFFFFFF) {
       // ビットごとに調べる
       for(j = 0; j < 32; j++) {
-	if (!mem_test_bit(j)) {
-	  ofs = i * 32 + j;
+	ofs = i * 32 + j;
+	if (!mem_test_bit(ofs)) {
 	  for(k = 0; k <= size; k++) {
 	    // 使用不可
 	    if (mem_test_bit(ofs + k)) break;
 	    // 必要分を確保可能
-	    if (k == size) return i * 32 + j;
+	    if (k == size) return ofs;
 	  }
 	}
       }
@@ -92,7 +93,7 @@ u_int mem_find_blocks(u_int size)
 void mem_enable_bit(u_int num)
 {
   pm_info.blocks_used++;
-  pm_info.blocks_free = pm_info.blocks_max = pm_info.blocks_used;
+  pm_info.blocks_free = pm_info.blocks_max - pm_info.blocks_used;
   pm_info.mem_map[num / 32] |= (1 << num);
 }
 
@@ -104,7 +105,7 @@ void mem_enable_bit(u_int num)
 void mem_disable_bit(u_int num)
 {
   pm_info.blocks_used--;
-  pm_info.blocks_free = pm_info.blocks_max = pm_info.blocks_used;
+  pm_info.blocks_free = pm_info.blocks_max - pm_info.blocks_used;
   pm_info.mem_map[num / 32] &= ~(1 << num);
 }
 
