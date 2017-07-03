@@ -16,6 +16,7 @@ void hal_init(multiboot_info_t* mbd)
   pit_init();  // タイマ
   kb_init();   // キーボード
   mem_init(mbd->mem_upper);  // 物理メモリ
+  //ide_init();  // ハードディスク
   enable_interrupt();
 }
 

@@ -92,7 +92,7 @@ void fb_putc(u_char c)
     // 構造体を構成する
     fb_vga.ascii = c;
     // メモリマップトI/Oで書き込み
-    memcpy((void*)(0x000B8000 + fb_position * 2), &fb_vga, 2);
+    memcpy((void*)(VGA_FRAMEBUFFER + fb_position * 2), &fb_vga, 2);
     // カーソルを進める
     fb_position++;
   }

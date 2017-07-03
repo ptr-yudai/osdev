@@ -41,7 +41,8 @@ void* mem_alloc_blocks(u_int size)
   // 使用済みフラグを立てる
   for(i = 0; i < size; i++) mem_enable_bit(frame + i);
   // アドレスとして返す
-  u_int addr = frame * MEMORY_BLOCK_SIZE;
+  u_int addr = (u_int)pm_info.mem_map + pm_info.mem_map_size;
+  addr += frame * MEMORY_BLOCK_SIZE;
   return (void*)addr;
 }
 
@@ -54,7 +55,8 @@ void* mem_alloc_blocks(u_int size)
 void mem_free_blocks(void* addr, u_int size)
 {
   u_int i;
-  u_int frame = (u_int)addr / MEMORY_BLOCK_SIZE;
+  u_int frame = (u_int)addr - (u_int)pm_info.mem_map - pm_info.mem_map_size;
+  frame /= MEMORY_BLOCK_SIZE;
   // 使用済みフラグを下げる
   for(i = 0; i < size; i++) mem_disable_bit(frame + i);
 }

@@ -7,6 +7,7 @@
 /* VGA設定 */
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
+#define VGA_FRAMEBUFFER 0x000B8000 // フレームバッファへのポインタ
 enum VGA_COLOR {
   VGA_COLOR_BLACK = 0,
   VGA_COLOR_BLUE = 1,
