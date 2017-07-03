@@ -1,10 +1,7 @@
 #ifndef HAL_PIC_H
 #define HAL_PIC_H
 
-typedef unsigned int u_int;
-typedef unsigned long long u_int64;
-typedef unsigned short u_short;
-typedef unsigned char u_char;
+#include "../include/types.h"
 
 /*----- 定数定義 -----*/
 // 8259Aマスター

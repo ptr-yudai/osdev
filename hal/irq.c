@@ -5,6 +5,7 @@
 #include "hal.h"
 #include "pit.h"
 #include "key.h"
+#include "../sys/screen.h"
 #include "../include/io.h"
 
 /*
@@ -54,23 +55,36 @@ void irq_keyboard(void)
 	//fb_printx(code);
 
 	switch(kb_lookup_keycode(code)) {
-	case KEY_LCTRL: // CTRLキー押す
+	case KEY_LCTRL:      // CTRLキー押す
 	case KEY_RCTRL:
 	  kb_info.flg_ctrl = 1;
 	  break;
-	case KEY_LSHIFT: // SHIFTキー押す
+	case KEY_LSHIFT:     // SHIFTキー押す
 	case KEY_RSHIFT:
 	  kb_info.flg_shift = 1;
 	  break;
-	case KEY_LALT: // ALTキー押す
+	case KEY_LALT:       // ALTキー押す
 	case KEY_RALT:
 	  kb_info.flg_alt = 1;
 	  break;
-	case KEY_CAPSLOCK: // CAPSキー押す
+	case KEY_CAPSLOCK:   // CAPSキー押す
 	  kb_info.flg_caps = ~kb_info.flg_caps;
 	  break;
 	case KEY_SCROLLLOCK: // SCROLLキー押す
 	  kb_info.flg_scr = ~kb_info.flg_scr;
+	  break;
+	  
+	case KEY_F1: // 仮想画面1
+	  scr_switch(0);
+	  break;
+	case KEY_F2: // 仮想画面2
+	  scr_switch(1);
+	  break;
+	case KEY_F3: // 仮想画面3
+	  scr_switch(2);
+	  break;
+	case KEY_F4: // 仮想画面4
+	  scr_switch(3);
 	  break;
 	}
       }
