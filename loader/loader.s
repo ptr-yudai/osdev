@@ -10,6 +10,7 @@ global loader
 ;; 外部関数
 extern init_pmode
 extern kmain
+extern init_A20
 	
 ;;; textセクションの開始
 section .text
@@ -25,6 +26,8 @@ loader:
 	mov esp, kstack + KERNEL_STACK_SIZE
 	push eax		; magic
 	push ebx		; multiboot info
+	; A20を有効化
+	call init_A20
 	; 保護モードに移行
 	jmp dword init_pmode
 

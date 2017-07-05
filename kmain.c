@@ -24,23 +24,6 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   fb_print("Memory Size: ");
   fb_printx(mbd->mem_upper / 1024); fb_print(" MB\n");
   //*/
-
-  PT_ENTRY pte1;
-  vmem_alloc_page(&pte1); fb_print("\n");
-  fb_printx((u_int)pte1);
-  PT_ENTRY pte2;
-  vmem_alloc_page(&pte2); fb_print("\n");
-  fb_printx((u_int)pte2);
-  vmem_free_page(&pte2);
-  PT_ENTRY pte3;
-  vmem_alloc_page(&pte3); fb_print("\n");
-  fb_printx((u_int)pte3);
-  PT_ENTRY pte4;
-  vmem_alloc_page(&pte4); fb_print("\n");
-  fb_printx((u_int)pte4);
-  PT_ENTRY pte5;
-  vmem_alloc_page(&pte5); fb_print("\n");
-  fb_printx((u_int)pte5);
   
   fb_print("\nCPU is going to halt. See you...\n");
 }
