@@ -9,6 +9,15 @@
 #include "../include/io.h"
 
 /*
+ * IDEの割り込みハンドラ
+ */
+void irq_ide(void)
+{
+  interrupt_done(0);
+  fb_print("[DEBUG] IRQ_IDE\n");
+}
+
+/*
  * PITの割り込みハンドラ
  */
 void irq_pit(void)

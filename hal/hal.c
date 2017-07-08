@@ -6,6 +6,7 @@
 #include "key.h"
 #include "mem.h"
 #include "vmem.h"
+#include "ide.h"
 
 /*
  * 各種初期化を実行する
@@ -18,7 +19,7 @@ void hal_init(multiboot_info_t* mbd)
   kb_init();   // キーボード
   mem_init(mbd->mem_upper);  // 物理メモリ
   vmem_init();
-  //ide_init();  // ハードディスク
+  ide_init();  // ハードディスク
   enable_interrupt();
 }
 

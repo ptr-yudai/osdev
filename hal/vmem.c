@@ -164,7 +164,7 @@ void vmem_init(void)
     pte_set_frameaddr(pte, frame);
   }
   // 0x00100000からの4MB
-  for(i = 0, frame = 0x00010000, virt = 0x00100000;
+  for(i = 0, frame = 0x00010000, virt = 0xC0000000;
       i < NUM_PTE;
       i++, frame += PAGE_SIZE, virt += PAGE_SIZE) {
     pte = vmem_lookup_pte(table_high, virt);
@@ -173,12 +173,14 @@ void vmem_init(void)
   }
 
   //// PDEを初期化
-  directory = (PDirectory*)mem_alloc_blocks(1);
+  directory = (PDirectory*)mem_alloc_blocks(3);
   if (!directory) return;
+  memset(directory, 0, sizeof(PDirectory));
   // 0x00000000 - 0x003ff000
-  pde = vmem_lookup_pde(directory, 0x00000000);
+  pde = vmem_lookup_pde(directory, 0xC0000000);
   pde_add_attribute(pde, PDE_PRESENT | PDE_WRITABLE);
   pde_set_frameaddr(pde, (u_int)table_low);
+
   // 0x00100000 - 0x004ff000
   pde = vmem_lookup_pde(directory, 0x00000000);
   pde_add_attribute(pde, PDE_PRESENT | PDE_WRITABLE);
@@ -188,12 +190,13 @@ void vmem_init(void)
   vmem_switch_pde(directory);
   
   // ページングを有効化
-  //__asm__ __volatile__("cli");
+  __asm__ __volatile__("cli");
   __asm__ __volatile__("push %eax");
   __asm__ __volatile__("mov %eax, %cr0");
   __asm__ __volatile__("or %eax, 0x80000000");
   __asm__ __volatile__("mov %cr0, %eax");
   __asm__ __volatile__("pop %eax");
+  __asm__ __volatile__("sti");
 
   fb_print("[DEBUG] Paging: ON\n");
 }

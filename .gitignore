@@ -6,3 +6,4 @@
 /peda-session-*
 /kernel.*
 /.gdb_history
+/hdd/hdd.img

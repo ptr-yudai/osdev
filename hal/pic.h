@@ -61,6 +61,8 @@ void pic_sendcmd(u_char cmd, u_char picn);
 void pic_senddata(u_char data, u_char picn);
 void outb(u_short port, u_char data);
 u_char inb(u_short port);
+void outw(u_short port, u_short data);
+u_short inw(u_short port);
 void pic_init();
 
 #endif
