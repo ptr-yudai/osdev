@@ -55,9 +55,33 @@
 #define ATA_REG_CONTROL    0x0C
 #define ATA_REG_ALTSTATUS  0x0C
 #define ATA_REG_DEVADDRESS 0x0D
+// 先頭の識別子
+#define ATA_IDENT_DEVICETYPE   0
+#define ATA_IDENT_CYLINDERS    2
+#define ATA_IDENT_HEADS        6
+#define ATA_IDENT_SECTORS      12
+#define ATA_IDENT_SERIAL       20
+#define ATA_IDENT_MODEL        54
+#define ATA_IDENT_CAPABILITIES 98
+#define ATA_IDENT_FIELDVALID   106
+#define ATA_IDENT_MAX_LBA      120
+#define ATA_IDENT_COMMANDSETS  164
+#define ATA_IDENT_MAX_LBA_EXT  200
+
+/*----- 構造体定義 -----*/
+typedef struct {
+  char name[40];
+} HARDDISK_INFO;
 
 /*----- 関数定義 -----*/
 void ide_init(void);
+void ide_select_drive(u_char bus, u_char drive);
 u_char ide_identify(u_char bus, u_char drive);
+void ide_poll(u_short io);
+u_char ata_read(char* buf, u_char lba, u_char n);
+
+/*----- 変数定義 -----*/
+u_char ide_buffer[256];
+HARDDISK_INFO hdd_info;
 
 #endif
