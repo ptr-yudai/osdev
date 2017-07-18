@@ -2,6 +2,7 @@
  * util.c - 汎用関数
  */
 #include "util.h"
+#include "../hal/mem.h"
 
 /*
  * strlen - 文字列の長さを調べる
@@ -63,4 +64,23 @@ void *memset(void *to, u_char ch, u_int n)
 u_int isascii(u_int c)
 {
   return c < 0x80 ? 1 : 0;
+}
+
+/*
+ * malloc - メモリ領域を確保する
+ *
+ * @param size 確保するセグメント数
+ * @return 確保した領域の物理アドレス
+ */
+void *malloc(u_int size)
+{
+  return mem_alloc_blocks(size);
+}
+
+/*
+ * exit - 強制終了する
+ */
+void exit(void)
+{
+  __asm__ __volatile__("jmp kexit");
 }

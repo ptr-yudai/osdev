@@ -1,8 +1,9 @@
 INCLUDE_OBJECTS = include/util.o include/io.o include/time.o
 HAL_OBJECTS = hal/hal.o hal/idt.o hal/pic.o hal/pit.o hal/exception.o hal/irq.o hal/irq_bridge.o hal/key.o hal/mem.o hal/ide.o hal/vmem.o hal/pte.o hal/pde.o
-SYS_OBJECTS = sys/screen.o
+SYS_OBJECTS = sys/screen.o sys/forensics.o
+FS_OBJECTS = fs/mbr.o
 LOADER_OBJECTS = loader/loader.o loader/pmode.o loader/a20.o
-OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(SYS_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
+OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(SYS_OBJECTS) $(FS_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
 
 # ビルトツール
 CC = gcc
@@ -31,8 +32,7 @@ kernel.elf: link.ld $(OBJECTS)
 
 ## 実行する
 run:
-	qemu-system-i386 -boot d -cdrom my_os.iso -m 512M -hda hdd/hdd.img
-#	-global ide-drive.phisical_block_size=4096 -drive file=hdd/hdd.img,if=ide,index=0,media=disk
+	qemu-system-i386 -boot d -cdrom my_os.iso -m 512M -hda hdd/dfr-01-ntfs.dd
 
 ## デバッグする
 debug:

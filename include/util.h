@@ -4,8 +4,10 @@
 #include "types.h"
 
 u_int strlen(const char*);
+void *malloc(u_int);
 void *memcpy(void*, const void*, u_int);
 void *memset(void*, u_char, u_int);
 u_int isascii(u_int c);
+void exit(void);
 
 #endif

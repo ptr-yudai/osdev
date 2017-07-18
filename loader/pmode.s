@@ -30,6 +30,7 @@ gdt_toc:
 
 section .text
 global init_pmode
+global kexit
 extern kmain
 
 ;; GDTをロード
@@ -62,6 +63,6 @@ start_pmode:
 	push eax
 	push ebx
 	call kmain
-.fin:
+kexit:
 	hlt
-	jmp .fin
+	jmp kexit
