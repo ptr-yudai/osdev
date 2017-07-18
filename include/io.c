@@ -113,6 +113,34 @@ void fb_print(const char* str)
 }
 
 /*
+ * バイナリをカーソルに書き込む
+ *
+ * @param bin  書き込むバイナリ
+ * @param size 書き込みバイト数
+ */
+void fb_printb(char* bin, u_int size)
+{
+  u_int i;
+  u_char* p_bin = (u_char*)bin;
+  u_char c;
+  for(i = 0; i < size; i++, p_bin++) {
+    fb_putc('\\'); fb_putc('x');
+    // 上位4ビット
+    c = (*p_bin & 0xF0) >> 4;
+    if (c < 10) c += 0x30;
+    else if (c < 16) c += 0x37;
+    else c = 0x3F;
+    fb_putc(c);
+    // 下位4ビット
+    c = (*p_bin & 0x0F);
+    if (c < 10) c += 0x30;
+    else if (c < 16) c += 0x37;
+    else c = 0x3F;
+    fb_putc(c);
+  }
+}
+
+/*
  * 数字を16進数で表示する
  *
  * @param n 表示する数値

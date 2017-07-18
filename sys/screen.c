@@ -13,8 +13,8 @@ void screen_init(void)
   fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
   fb_clrscr();
 
-  // 仮想画面のメモリ確保
   /*
+  // 仮想画面のメモリ確保
   for(i = 0; i < SCR_VIRTUAL_MAX; i++) {
     scrmgr.vga[i].p_framebuffer = mem_alloc_blocks(1);
     scrmgr.vga[i].fb_position = 0;

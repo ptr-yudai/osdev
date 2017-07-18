@@ -6,9 +6,11 @@
 /*----- IRQのインポート -----*/
 void irq_pit_bridge(void);
 void irq_keyboard_bridge(void);
+void irq_ide_bridge(void);
 
 /*----- 割り込みハンドラ定義 -----*/
 void irq_pit(void);
 void irq_keyboard(void);
+void irq_ide(void);
 
 #endif

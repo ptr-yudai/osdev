@@ -27,7 +27,8 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   //*/
 
   char buf[1024];
-  ata_read(buf, 4, 3);
+  ata_read(buf, 2, 2);
+  fb_printb(buf, 160);
   
   fb_print("\nCPU is going to halt. See you...\n");
 }

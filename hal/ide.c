@@ -3,6 +3,8 @@
  */
 #include "ide.h"
 #include "pic.h"
+#include "idt.h"
+#include "irq.h"
 
 #include "../include/io.h"
 
@@ -12,6 +14,10 @@
 void ide_init(void)
 {
   int i;
+
+  // ATA割り込みハンドラ
+  idt_setup_ir(46, irq_ide);
+  idt_setup_ir(47, irq_ide);
 
   if (ide_identify(ATA_PRIMARY, ATA_MASTER)) {
     fb_print("[DEBUG] Hard disk is recognized.\n");
@@ -57,6 +63,7 @@ u_char ata_read(char *buf, u_char lba, u_char n)
     for(i = 0; i < 256; i++) {
       *(u_short*)(buf + i * 2) = inw(io + ATA_REG_DATA);
     }
+    lba++;
   }
 
 
@@ -146,7 +153,7 @@ u_char ide_identify(u_char bus, u_char drive)
       return 0;
     }
     while(!(status & ATA_SR_DRQ)) goto pm_stat_read;
-    for(i = 0; i < 256; i++) {
+    for(i = 0; i < 128; i++) {
       *(u_short*)(ide_buffer + i*2) = inw(io + ATA_REG_DATA);
     }
     return 1;

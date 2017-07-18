@@ -48,6 +48,7 @@ void kb_getline(char* str);
 // 画面出力
 void fb_putc(u_char c);
 void fb_print(const char* str);
+void fb_printb(char* bin, u_int size);
 void fb_printx(u_int n);
 void fb_clrscr(void);
 void fb_setcolor(u_char fg, u_char bg);

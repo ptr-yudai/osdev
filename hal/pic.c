@@ -30,9 +30,10 @@ void pic_init()
   irq_mask &= ~PIC_IMR_MASK_IRQ0;
   irq_mask &= ~PIC_IMR_MASK_IRQ1;
   outb(PORT_MASTER_PIC_IMR, irq_mask);
-  // IRQ14(IDE)を有効化
+  // IRQ14(ata primary), IRQ15(ata secondary)を有効化
   irq_mask = PIC_IMR_MASK_IRQ_ALL;
   irq_mask &= ~PIC_IMR_MASK_IRQ6;
+  irq_mask &= ~PIC_IMR_MASK_IRQ7;
   outb(PORT_SLAVE_PIC_IMR , PIC_IMR_MASK_IRQ_ALL);
 
   fb_print("[DEBUG] PIC init\n");
