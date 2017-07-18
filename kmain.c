@@ -5,6 +5,8 @@
 #include "./sys/screen.h"
 #include "./sys/forensics.h"
 #include "./hal/hal.h"
+
+#include "./hal/ide.h"
 #include "./fs/mbr.h"
 
 /*
@@ -28,14 +30,10 @@ void kmain(multiboot_info_t* mbd, u_int magic)
 
   // MBRをロード
   MBR* mbr = mbr_load();
-  if (mbr->pTable1.type == MBR_PTYPE_NTFS)
-    fb_print("Partition Table 1 is NTFS\n");
-  if (mbr->pTable2.type == MBR_PTYPE_NTFS)
-    fb_print("Partition Table 2 is NTFS\n");
-  if (mbr->pTable3.type == MBR_PTYPE_NTFS)
-    fb_print("Partition Table 3 is NTFS\n");
-  if (mbr->pTable4.type == MBR_PTYPE_NTFS)
-    fb_print("Partition Table 4 is NTFS\n");
+  // とりあえずpTable1を調査
+  void* partition = malloc(1);
+  ata_read(partition, (u_int)*(mbr->pTable1.lbaFirst), 1);
+  fb_printb((char*)partition, 80);
   
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
 }

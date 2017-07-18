@@ -4,7 +4,7 @@
 #include "../include/types.h"
 
 /*----- 定数定義 -----*/
-// ファイルシステムの種別(MBR->pTable.type)
+// ファイルシステムの種別(MBR.pTable.type)
 #define MBR_PTYPE_EMPTY  0x00
 #define MBR_PTYPE_FAT12  0x01
 #define MBR_PTYPE_FAT16  0x04
@@ -21,6 +21,9 @@
 #define MBR_PTYPE_FBSD   0xA5
 #define MBR_PTYPE_OBSF   0xA6
 #define MBR_PTYPE_NEXT   0xA7
+// アクティブフラグ(pTable.bootflag)
+#define PTABLE_ACTIVE    0x80
+#define PTABLE_INACTIVE  0x00
 
 /*----- 構造体 -----*/
 // パーティションテーブル
