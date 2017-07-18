@@ -43,7 +43,7 @@ typedef struct {
   pTable pTable2;
   pTable pTable3;
   pTable pTable4;
-  u_char signature[2]; // シグネチャ
+  u_short signature; // シグネチャ
 } MBR;
 
 /*----- 関数定義 -----*/

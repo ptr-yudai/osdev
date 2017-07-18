@@ -8,6 +8,7 @@
 
 #include "./hal/ide.h"
 #include "./fs/mbr.h"
+#include "./fs/ntfs.h"
 
 /*
  * カーネルメイン
@@ -31,9 +32,8 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   // MBRをロード
   MBR* mbr = mbr_load();
   // とりあえずpTable1を調査
-  void* partition = malloc(1);
-  ata_read(partition, (u_int)*(mbr->pTable1.lbaFirst), 1);
-  fb_printb((char*)partition, 80);
+  NTFS_BOOTSECTOR* ntfs_bs = ntfs_bootsector(mbr);
+  ntfs_bs = ntfs_bs;
   
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
 }

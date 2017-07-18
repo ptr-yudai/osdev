@@ -14,8 +14,7 @@ MBR* mbr_load(void)
   // MBRのロード
   ata_read((char*)mbr, 0, 1);
   // シグネチャの確認
-  if (mbr->signature[0] != (u_char)'\x55'
-      || mbr->signature[1] != (u_char)'\xAA') {
+  if (mbr->signature != (u_short)0xAA55) {
     fb_print("[STOP] Unsupported MBR version.\n");
     // [TODO]
     // MBR修復用にパーティションを強制的に探索するコードを入れる
