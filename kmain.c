@@ -37,8 +37,6 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   NTFS_BS* bootsector = ntfs_bootsector(mbr);
   ntfs_mft(bootsector->mftCluster);
   
-  scr_switch(1);
-  
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
   
   free(mbr, 1);

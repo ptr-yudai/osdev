@@ -1,6 +1,7 @@
 #ifndef INCLUDE_TYPES_H
 #define INCLUDE_TYPES_H
 
+#define NULL 0
 
 typedef unsigned int       u_int;
 typedef unsigned long long u_int64;

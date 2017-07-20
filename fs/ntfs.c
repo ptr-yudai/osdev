@@ -15,7 +15,22 @@ NTFS_BS* ntfs_bootsector(MBR* mbr)
   ntfs_info.lbaFirst[0] = mbr->pTable1.lbaFirst;
   ntfs_info.bytesPerSector = bootsector->bpb.bytesPerSector;
   ntfs_info.sectorsPerCluster = bootsector->bpb.sectorsPerCluster;
-  //ntfs_info.bytesPerCluster = ntfs_info.bytesPerSector * ntfs_info.sectorsPerCluster;
+  // 謎仕様によりMFTのサイズを計算
+  if (bootsector->clustersPerMFT >= 0) {
+    // clusterPerMFT >= 0ならセクタ/クラスタをかける
+    ntfs_info.sectorsPerRecord = bootsector->clustersPerMFT * bootsector->bpb.sectorsPerCluster;
+    ntfs_info.bytesPerRecord = ntfs_info.sectorsPerRecord * ntfs_info.bytesPerSector;
+  } else {
+    // clusterPerMFT < 0なら 2^(-clusterPerMFT) がMFTのバイト数
+    ntfs_info.sectorsPerRecord = 1 << -bootsector->clustersPerMFT;
+    ntfs_info.bytesPerRecord = ntfs_info.sectorsPerRecord;
+    if (ntfs_info.sectorsPerRecord % ntfs_info.bytesPerSector == 0) {
+      ntfs_info.sectorsPerRecord /= ntfs_info.bytesPerSector;
+    } else {
+      ntfs_info.sectorsPerRecord /= ntfs_info.bytesPerSector;
+      ntfs_info.sectorsPerRecord++;
+    }
+  }
   return bootsector;
 }
 
@@ -27,12 +42,59 @@ NTFS_BS* ntfs_bootsector(MBR* mbr)
  */
 NTFS_MFT* ntfs_mft(u_int mftCluster)
 {
-  NTFS_MFT* mft = (NTFS_MFT*)malloc(1);
+  // [TODO] メモリ削減のためsectorsPerRecordではなく[secPerRec / 4KB]を使うこと
+  NTFS_MFT* mft = (NTFS_MFT*)malloc(ntfs_info.sectorsPerRecord);
   // MFTを読み込む
   u_int64 access = (u_int64)mftCluster * ntfs_info.sectorsPerCluster;
-  ata_read_ntfs((char*)mft, access, 1);
-  fb_print((char*)mft->signature);
+  ata_read_ntfs((char*)mft, access, ntfs_info.sectorsPerRecord);
+  // MFTの本体を探索する
+  // [DEBUG] 探索する属性は引数で受け取るように
+  NTFS_ATTR_HEADER_NR *mft_data = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_DATA);
+  if (mft_data == NULL) {
+    fb_print("[DEBUG] Cannot find the attribute!");
+    exit();
+  }
+  fb_printx((u_int)mft_data);
+  
   return mft;
+}
+
+/*
+ * 属性と一致する領域を探索する
+ *
+ * @param mftHeader MFT領域の先頭へのポインタ
+ * @param typeID    探索する属性
+ */
+void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID)
+{
+  void* ptr = (void*)((u_int)mftHeader + mftHeader->attribOffset);
+  u_int mftSize = ntfs_info.bytesPerRecord;
+
+  while(1) {
+    // 範囲外
+    if (ptr + sizeof(NTFS_ATTR_HEADER_R) > (void*)((u_int)mftHeader + mftSize)) {
+      break;
+    }
+    // 終端
+    NTFS_ATTR_HEADER_R *header = (NTFS_ATTR_HEADER_R*)ptr;
+    if (header->typeID == (u_int)0xFFFFFFFF) {
+      break;
+    }
+    // 破損データによる無限ループを避ける
+    if (header->length == 0) {
+      break;
+    }
+
+    // 属性を発見
+    if (header->typeID == typeID
+	&& ptr + header->length <= (void*)((u_int)mftHeader + mftSize)) {
+      return ptr;
+    }
+    
+    ptr += header->length;
+  }
+
+  return NULL;
 }
 
 /*
