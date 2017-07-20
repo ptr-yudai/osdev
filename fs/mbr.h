@@ -32,9 +32,9 @@ typedef struct {
   u_char chsFirst[3];
   u_char type;
   u_char chsLast[3];
-  u_char lbaFirst[4];
-  u_char lbaCount[4];
-} pTable;
+  u_int  lbaFirst;
+  u_int  lbaCount;
+} __attribute__((__packed__)) pTable;
 // MBR
 typedef struct {
   u_char mbr[446];     // Master Bootstrap Loader
@@ -44,7 +44,7 @@ typedef struct {
   pTable pTable3;
   pTable pTable4;
   u_short signature; // シグネチャ
-} MBR;
+} __attribute__((__packed__)) MBR;
 
 /*----- 関数定義 -----*/
 MBR* mbr_load(void);

@@ -78,6 +78,17 @@ void *malloc(u_int size)
 }
 
 /*
+ * free - メモリ領域を解放する
+ *
+ * @param addr 確保した物理アドレス
+ * @param size 解放するセグメント数
+ */
+void free(void* addr, u_int size)
+{
+  return mem_free_blocks(addr, size);
+}
+
+/*
  * exit - 強制終了する
  */
 void exit(void)
