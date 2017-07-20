@@ -5,6 +5,7 @@
 #include "util.h"
 #include "../hal/pic.h"
 #include "../hal/key.h"
+#include "../sys/screen.h"
 
 /*--------------------------------------------------*/
 //
@@ -92,7 +93,7 @@ void fb_putc(u_char c)
     // 構造体を構成する
     fb_vga.ascii = c;
     // メモリマップトI/Oで書き込み
-    memcpy((void*)(VGA_FRAMEBUFFER + fb_position * 2), &fb_vga, 2);
+    memcpy((void*)(scr_currentfb() + fb_position * 2), &fb_vga, 2);
     // カーソルを進める
     fb_position++;
   }

@@ -22,7 +22,11 @@ void irq_ide(void)
  */
 void irq_pit(void)
 {
+  // タイマをカウントすう
   pit_increment_tick();
+  // 仮想フレームバッファを描画する
+  scr_redraw();
+  
   interrupt_done(0);
   //fb_print("[DEBUG] IRQ_PIT\n");
 }

@@ -26,5 +26,7 @@ SCR_VIRTUAL scrmgr;
 void screen_init(void);
 void scr_switch(u_char n);
 void scr_draw_menu(void);
+void scr_redraw(void);
+void* scr_currentfb(void);
 
 #endif

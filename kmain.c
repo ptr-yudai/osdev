@@ -15,11 +15,13 @@
  */
 void kmain(multiboot_info_t* mbd, u_int magic)
 {
-  // 画面を初期化
-  screen_init();
-
+  fb_setpos(0, 0);
+  fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
+  fb_clrscr();
   // 割り込みを設定
   hal_init(mbd);
+  // 画面管理を初期化
+  screen_init();
 
   // 各種情報を表示
   ///*
@@ -35,6 +37,7 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   NTFS_BS* bootsector = ntfs_bootsector(mbr);
   ntfs_mft(bootsector->mftCluster);
   
+  scr_switch(1);
   
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
   
