@@ -35,7 +35,22 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   MBR* mbr = mbr_load();
   // とりあえずpTable1を調査
   NTFS_BS* bootsector = ntfs_bootsector(mbr);
-  ntfs_mft(bootsector->mftCluster);
+  NTFS_MFT* mft = ntfs_mft(bootsector->mftCluster);
+  //NTFS_ATTR_HEADER_NR *mft_data1 = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_DATA);
+  NTFS_ATTR_HEADER_R *mft_data = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_FILENAME);
+  NTFS_ENTRY_FILENAME *entry_filename = (NTFS_ENTRY_FILENAME*)((u_int)mft_data + mft_data->contentOffset);
+
+  /* 動かず
+  u_int64 unixtime = ts_file2unix(entry_filename->tsAccessed);
+  DATETIME date;
+  ts_unix2date(unixtime, &date);
+  fb_printx(date.year);
+  */
+
+  char *filename = (char*)malloc(1);
+  memcpy(filename, (void*)((u_int)entry_filename + sizeof(NTFS_ENTRY_FILENAME)), entry_filename->nameLength * 2);
+  fb_printb(filename, entry_filename->nameLength * 2);
+  free(filename, 1);
   
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
   

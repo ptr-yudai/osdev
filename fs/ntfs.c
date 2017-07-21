@@ -54,7 +54,6 @@ NTFS_MFT* ntfs_mft(u_int mftCluster)
     fb_print("[DEBUG] Cannot find the attribute!");
     exit();
   }
-  fb_printx((u_int)mft_data);
   
   return mft;
 }

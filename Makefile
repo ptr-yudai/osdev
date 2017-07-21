@@ -11,7 +11,7 @@ AS = nasm
 LD = ld
 
 # オプション
-CFLAGS = -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c
+CFLAGS = -m32 -nostdlib -nostdinc -fno-tree-scev-cprop -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c
 LDFLAGS = -melf_i386 -T link.ld
 ASFLAGS = -f elf32
 

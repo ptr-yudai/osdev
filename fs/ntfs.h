@@ -22,6 +22,16 @@
 #define NTFS_MFT_ATTRIBUTE_BITMAP   0xB0
 #define NTFS_MFT_ATTRIBUTE_REPARSE  0xC0
 #define NTFS_MFT_ATTRIBUTE_LOGGED   0x100
+// STANDARD_INFORMATIONおよびFILE_NAMEエントリのflags
+#define NTFS_MFT_ENTRY_FLAGS_READONLY 0x0001
+#define NTFS_MFT_ENTRY_FLAGS_HIDDEN   0x0002
+#define NTFS_MFT_ENTRY_FLAGS_SYSTEM   0x0004
+// [TODO] 追加
+// FILE_NAMEのnameType
+#define NTFS_MFT_ENTRY_NAMETYPE_POSIX  0
+#define NTFS_MFT_ENTRY_NAMETYPE_WIN32  1
+#define NTFS_MFT_ENTRY_NAMETYPE_DOS    2
+#define NTFS_MFT_ENTRY_NAMETYPE_WIN32D 3
 
 /*----- 構造体定義 -----*/
 // BIOS Parameter Block
@@ -92,8 +102,8 @@ typedef struct {
 } __attribute__((__packed__)) NTFS_ATTR_HEADER_R;
 // アトリビュートヘッダ(ノンレジデント)
 typedef struct {
-  u_short typeID;
-  u_short length;
+  u_int typeID;
+  u_int length;
   u_char  formCode;
   u_char  nameLength;
   u_short nameOffset;
@@ -108,6 +118,37 @@ typedef struct {
   u_int64 contentSize;
   u_int64 initContentSize;
 } __attribute__((__packed__)) NTFS_ATTR_HEADER_NR;
+
+/* MFTエントリー */
+// STANDARD_INFORMATION
+typedef struct {
+  u_int64 tsCreated;     // 作成日
+  u_int64 tsModified;    // 変更日
+  u_int64 tsMFTModified; // MFTの変更日
+  u_int64 tsAccessed;    // アクセス日
+  u_int   flags;         // フラグ(NTFS_MFT_ENTRY_FLAGS_*)
+  u_int   maxVersions;
+  u_int   versionNum;
+  u_int   classID;
+  u_int   ownerID;
+  u_int   securityID;
+  u_int64 quotaCharged;
+  u_int64 updateSequence;
+} __attribute__((__packed__)) NTFS_ENTRY_STDINFO;
+// FILE_NAME
+typedef struct {
+  u_int64 parentDir;     // 親ディレクトリ
+  u_int64 tsCreated;     // 作成日
+  u_int64 tsModified;    // 変更日
+  u_int64 tsMFTModified; // MFTの変更日
+  u_int64 tsAccessed;    // アクセス日
+  u_int64 logicalSize;   // 論理サイズ
+  u_int64 physicalSize;  // 物理サイズ
+  u_int   flags;         // フラグ(NTFS_MFT_ENTRY_FLAGS_*)
+  u_int   reparse;
+  u_char  nameLength;    // ファイル名の長さ
+  u_char  nameType;      // ファイル名の種別(NTFS_MFT_ENTRY_NAMETYPE_*)
+} __attribute__((__packed__)) NTFS_ENTRY_FILENAME;
 
 // 共用情報
 typedef struct {
