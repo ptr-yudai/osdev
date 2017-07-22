@@ -40,17 +40,23 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   NTFS_ATTR_HEADER_R *mft_data = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_FILENAME);
   NTFS_ENTRY_FILENAME *entry_filename = (NTFS_ENTRY_FILENAME*)((u_int)mft_data + mft_data->contentOffset);
 
-  /* 動かず
-  u_int64 unixtime = ts_file2unix(entry_filename->tsAccessed);
+  fb_printb((char*)&entry_filename->tsCreated, 8); fb_print("\n");
+  u_int64 unixtime = ts_file2unix(entry_filename->tsCreated);
   DATETIME date;
   ts_unix2date(unixtime, &date);
-  fb_printx(date.year);
-  */
+  fb_printx(date.year); fb_print("\n");
+  fb_printx(date.month); fb_print("\n");
+  fb_printx(date.day); fb_print("\n");
+  fb_printx(date.hour); fb_print("\n");
+  fb_printx(date.minute); fb_print("\n");
+  fb_printx(date.second); fb_print("\n");
 
+  /*
   char *filename = (char*)malloc(1);
   memcpy(filename, (void*)((u_int)entry_filename + sizeof(NTFS_ENTRY_FILENAME)), entry_filename->nameLength * 2);
   fb_printb(filename, entry_filename->nameLength * 2);
   free(filename, 1);
+  */
   
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
   

@@ -12,7 +12,7 @@
 #define TS_TICKS_TO_UNIX_EPOCH    (TS_TICKS_PER_SECOND * TS_SEC_TO_UNIX_EPOCH)
 // 年の日数
 #define YEAR_TO_DAYS(y) (u_int64)((y)*365 + (y)/4 - (y)/100 + (y)/400)
-#define MONTH_TO_DAYS(m) (u_int64)(367*(m + 1)/12)
+#define MONTH_TO_DAYS(m) (u_int64)(367*(m)/12)
 
 /*----- 構造体定義 -----*/
 typedef struct {

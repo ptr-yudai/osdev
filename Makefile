@@ -1,4 +1,4 @@
-INCLUDE_OBJECTS = include/util.o include/io.o include/time.o
+INCLUDE_OBJECTS = include/util.o include/io.o include/time.o include/div64.o
 HAL_OBJECTS = hal/hal.o hal/idt.o hal/pic.o hal/pit.o hal/exception.o hal/irq.o hal/irq_bridge.o hal/key.o hal/mem.o hal/ide.o hal/vmem.o hal/pte.o hal/pde.o
 SYS_OBJECTS = sys/screen.o sys/forensics.o
 FS_OBJECTS = fs/mbr.o fs/ntfs.o
@@ -39,7 +39,7 @@ debug:
 	objcopy --only-keep-debug kernel.elf kernel.sym
 	objcopy --strip-debug kernel.elf
 	objcopy -O binary kernel.elf kernel.bin
-	objdump -D -mi386 -M intel -Maddr16,data16 kernel.elf > objdump.txt
+	objdump -S -M intel kernel.elf > objdump.txt
 	qemu-system-i386 -s -S -boot d -cdrom my_os.iso -m 512M
 
 # 削除する

@@ -67,6 +67,46 @@ u_int isascii(u_int c)
 }
 
 /*
+ * do_div64 - 64ビット整数を32ビット整数で除算する
+ */
+u_int64 do_div64(u_int64 dividend, u_int divisor)
+{
+  u_int64 *result = 0;
+  u_int *result_low = (u_int*)result;
+  u_int *result_high = (u_int*)((u_int)result + 4);
+  //u_int dividend_low  = dividend & 0xFFFFFFFF;
+  __asm__ __volatile__("pusha");
+  __asm__ __volatile__("leal (%0), %%esi"
+		       :
+		       :"r"(&dividend)
+		       :"%esi");
+  __asm__ __volatile__("leal (%0), %%edi"
+		       :
+		       :"r"(&divisor)
+		       :"%esi", "%edi");
+  __asm__ __volatile__("call __do_div64");
+  __asm__ __volatile__("movl %%eax, %0"
+		       :"=r"(*result_low)
+		       :
+		       :"%eax", "%edx");
+  __asm__ __volatile__("movl %%edx, %0"
+		       :"=r"(*result_high)
+		       :
+		       :"%edx");
+  __asm__ __volatile__("popa");
+  /*
+    mov eax,[dividend + 4]      ;edx:eax = 0x0000000012345678
+    div dword [divisor]         ;eax = 0x01D208A5; edx = 0x00000006
+    mov [result + 4],eax        ;result high dword = 0x01D208A5
+    mov eax,[dividend]          ;edx:eax = 0x000000069ABCDEF0
+    div dword [divisor]         ;eax = 0xA912E318; edx = 0
+    mov [result],eax            ;result low dword = 0xA912E318
+    mov [remainder],edx         ;remainder = 0
+  */
+  return *result;
+}
+
+/*
  * malloc - メモリ領域を確保する
  *
  * @param size 確保するセグメント数

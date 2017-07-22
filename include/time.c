@@ -5,6 +5,8 @@
 #include "util.h"
 #include "../hal/pit.h"
 
+#include "../include/io.h"
+
 /*
  * FILETIMEをUNIXTIMEに変換する
  *
@@ -29,31 +31,32 @@ u_int64 ts_file2unix(u_int64 filetime)
  */
 void ts_unix2date(u_int64 unixtime, DATETIME* datetime)
 {
-  //u_int64 sec;
+  u_int64 sec;
   memset(datetime, 0x00, sizeof(DATETIME));
   if (unixtime == (u_int64)-1) return;
   // 秒
   //sec = unixtime / TS_NANOSECONDS_PER_SECOND;
-  //datetime->second = (u_int)sec % 60;
-  /*
+  sec = do_div64(unixtime, TS_NANOSECONDS_PER_SECOND);
+  datetime->second = (u_int)sec % 60;
   // 分
-  sec /= 60;
-  datetime->minute = sec % 60;
+  sec = do_div64(sec, 60); // sec /= 60;
+  datetime->minute = (u_int)sec % 60;
   // 時間
-  sec /= 60;
-  datetime->hour = sec % 24;
+  sec = do_div64(sec, 60); // sec /= 60;
+  datetime->hour = (u_int)sec % 24;
   // 1970/01/01 UTC以降の日数
-  unixtime += 719499;
+  sec = do_div64(sec, 24); // sec /= 24;
+  sec += 719499;
   // 年
   for(datetime->year = 1969;
-      unixtime > YEAR_TO_DAYS(datetime->year);
+      sec > YEAR_TO_DAYS(datetime->year + 1) + 30;
       datetime->year++);
-  unixtime -= YEAR_TO_DAYS(datetime->year);
+  sec -= YEAR_TO_DAYS(datetime->year);
   // 月
   for(datetime->month = 1;
-      datetime->month < 12 && unixtime > MONTH_TO_DAYS(datetime->month);
+      datetime->month < 12 && sec > MONTH_TO_DAYS(datetime->month + 1);
       datetime->month++);
-  unixtime -= MONTH_TO_DAYS(datetime->month);
+  sec -= MONTH_TO_DAYS(datetime->month);
   // 調整
   datetime->month += 2;
   if (datetime->month > 12) {
@@ -61,8 +64,7 @@ void ts_unix2date(u_int64 unixtime, DATETIME* datetime)
     datetime->year++;
   }
   // 日
-  datetime->day = unixtime;
-  */
+  datetime->day = sec;
 }
 
 /*
