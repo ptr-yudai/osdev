@@ -25,10 +25,8 @@ void kmain(multiboot_info_t* mbd, u_int magic)
 
   // 各種情報を表示
   ///*
-  fb_print("[INFO] Magic Number: ");
-  fb_printx(magic); fb_print("\n");
-  fb_print("[INFO] Memory Size: ");
-  fb_printx(mbd->mem_upper / 1024); fb_print(" MB\n");
+  fb_printf("[INFO] Magic Number: 0x%x\n", magic);
+  fb_printf("[INFO] Memory Size: %d MB\n", mbd->mem_upper / 1024);
   //*/
 
   // MBRをロード
@@ -36,27 +34,12 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   // とりあえずpTable1を調査
   NTFS_BS* bootsector = ntfs_bootsector(mbr);
   NTFS_MFT* mft = ntfs_mft(bootsector->mftCluster);
-  //NTFS_ATTR_HEADER_NR *mft_data1 = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_DATA);
-  NTFS_ATTR_HEADER_R *mft_data = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_FILENAME);
-  NTFS_ENTRY_FILENAME *entry_filename = (NTFS_ENTRY_FILENAME*)((u_int)mft_data + mft_data->contentOffset);
-
-  fb_printb((char*)&entry_filename->tsCreated, 8); fb_print("\n");
-  u_int64 unixtime = ts_file2unix(entry_filename->tsCreated);
-  DATETIME date;
-  ts_unix2date(unixtime, &date);
-  fb_printx(date.year); fb_print("\n");
-  fb_printx(date.month); fb_print("\n");
-  fb_printx(date.day); fb_print("\n");
-  fb_printx(date.hour); fb_print("\n");
-  fb_printx(date.minute); fb_print("\n");
-  fb_printx(date.second); fb_print("\n");
-
-  /*
-  char *filename = (char*)malloc(1);
-  memcpy(filename, (void*)((u_int)entry_filename + sizeof(NTFS_ENTRY_FILENAME)), entry_filename->nameLength * 2);
-  fb_printb(filename, entry_filename->nameLength * 2);
-  free(filename, 1);
-  */
+  NTFS_ATTR_HEADER_NR *mft_data = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_DATA);
+  if (mft_data->formCode == 0) {
+    // Resident
+    NTFS_ATTR_HEADER_R *data = (NTFS_ATTR_HEADER_R*)mft_data;
+    fb_printf("%d\n", data->formCode);
+  }
   
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
   

@@ -37,13 +37,13 @@ void ts_unix2date(u_int64 unixtime, DATETIME* datetime)
   // 秒
   //sec = unixtime / TS_NANOSECONDS_PER_SECOND;
   sec = do_div64(unixtime, TS_NANOSECONDS_PER_SECOND);
-  datetime->second = (u_int)sec % 60;
+  datetime->second = do_mod64(sec, 60);
   // 分
   sec = do_div64(sec, 60); // sec /= 60;
-  datetime->minute = (u_int)sec % 60;
+  datetime->minute = do_mod64(sec, 60);
   // 時間
   sec = do_div64(sec, 60); // sec /= 60;
-  datetime->hour = (u_int)sec % 24;
+  datetime->hour = do_mod64(sec, 24);
   // 1970/01/01 UTC以降の日数
   sec = do_div64(sec, 24); // sec /= 24;
   sec += 719499;

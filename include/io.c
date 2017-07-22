@@ -166,6 +166,60 @@ void fb_printx(u_int n)
 }
 
 /*
+ * フォーマット文字列を表示する
+ */
+void fb_printf(char *format, ...)
+{
+  va_list argptr;
+  char s[64], c, *str;
+  int num;
+  
+  va_start(argptr, format);
+  
+  while(*format != '\0') {
+    if (*format != '%') {
+      fb_putc(*format);
+    } else {
+      format++;
+      switch(*format) {
+      case '%':
+	fb_putc('%');
+	break;
+      case 'b':
+	num = va_arg(argptr, int);
+	itoa(num, s, 2);
+	fb_print(s);
+	break;
+      case 'c':
+	c = va_arg(argptr, char);
+	fb_putc(c);
+	break;
+      case 's':
+	str = va_arg(argptr, char *);
+	fb_print(str);
+	break;
+      case 'x':
+	num = va_arg(argptr, int);
+	itoa(num, s, 16);
+	fb_print(s);
+	break;
+      case 'd':
+	num = va_arg(argptr, int);
+	itoa(num, s, 10);
+	fb_print(s);
+	break;
+      default:
+	fb_putc(*(--format));
+	fb_putc(*(++format));
+	break;
+      }
+    }
+    format++;
+  }
+  va_end(argptr);
+}
+
+/*
  * 画面を現在の背景色で消去する
  */
 void fb_clrscr(void)

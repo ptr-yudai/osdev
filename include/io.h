@@ -3,6 +3,12 @@
 
 #include "types.h"
 
+// 可変長引数
+typedef u_char *va_list;
+#define va_start(ap,v) ap=((u_char*)&v)+4
+#define va_arg(ap,type) (ap+=sizeof(type),*(type*)((void*)ap-sizeof(type)))
+#define va_end(ap) ((void)0)
+
 /*----- 定数 -----*/
 /* VGA設定 */
 #define VGA_WIDTH 80
@@ -50,6 +56,7 @@ void fb_putc(u_char c);
 void fb_print(const char* str);
 void fb_printb(char* bin, u_int size);
 void fb_printx(u_int n);
+void fb_printf(char *format, ...);
 void fb_clrscr(void);
 void fb_setcolor(u_char fg, u_char bg);
 u_int fb_setpos(u_int row, u_int column);

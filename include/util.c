@@ -67,7 +67,45 @@ u_int isascii(u_int c)
 }
 
 /*
+ * itoa - 数値を文字列に変換する
+ *
+ * @param value 数値
+ * @param str   文字列へのポインタ
+ * @param base  基数
+ */
+void itoa(int value, char *str, int base)
+{
+  char *ptr, *low;
+  if ( base < 2 || base > 36 ) {
+    *str = '\0';
+    return;
+  }
+  ptr = str;
+  // 負数には'-'を付ける
+  if ( value < 0 && base == 10 ) {
+    *ptr++ = '-';
+  }
+  low = ptr;
+  do {
+    *ptr++ = "ZYXWVUTSRQPONMLKJIHGFEDCBA9876543210123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[35 + value % base];
+    value /= base;
+  } while(value);
+  // 終端
+  *ptr-- = '\0';
+  while(low < ptr) {
+    char tmp = *low;
+    *low++ = *ptr;
+    *ptr-- = tmp;
+  }
+  return;
+}
+
+/*
  * do_div64 - 64ビット整数を32ビット整数で除算する
+ *
+ * @param dividend 被除数
+ * @param divisor  除数
+ * @return 演算結果
  */
 u_int64 do_div64(u_int64 dividend, u_int divisor)
 {
@@ -94,17 +132,20 @@ u_int64 do_div64(u_int64 dividend, u_int divisor)
 		       :
 		       :"%edx");
   __asm__ __volatile__("popa");
-  /*
-    mov eax,[dividend + 4]      ;edx:eax = 0x0000000012345678
-    div dword [divisor]         ;eax = 0x01D208A5; edx = 0x00000006
-    mov [result + 4],eax        ;result high dword = 0x01D208A5
-    mov eax,[dividend]          ;edx:eax = 0x000000069ABCDEF0
-    div dword [divisor]         ;eax = 0xA912E318; edx = 0
-    mov [result],eax            ;result low dword = 0xA912E318
-    mov [remainder],edx         ;remainder = 0
-  */
   return *result;
 }
+
+/*
+ * do_div64 - 64ビット整数を32ビット整数で剰余を取る
+ *
+ * @param dividend 被除数
+ * @param divisor  除数
+ * @return 演算結果
+ */
+u_int do_mod64(u_int64 dividend, u_int divisor)
+{
+  return (u_int)dividend / divisor;
+} 
 
 /*
  * malloc - メモリ領域を確保する

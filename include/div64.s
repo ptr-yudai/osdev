@@ -4,10 +4,13 @@
 ;; C側にエクスポートする関数
 global __do_div64
 
-;; do_div64
+;; do_div64 - 64bit整数を32bit整数で割った商を求める
 ;; @param
 ;;  esi : dividendのポインタ
 ;;  edi : divisorのポインタ
+;; @return
+;;  eax : 演算結果の上位32ビット
+;;  edx : 演算結果の下位32ビット
 __do_div64:
 	xor edx, edx
 	mov eax, [esi + 4]	; edx:eax
@@ -19,4 +22,3 @@ __do_div64:
 	mov eax, [esp - 8]
 	mov edx, [esp - 4]
 	ret
-
