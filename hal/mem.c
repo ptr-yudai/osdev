@@ -66,6 +66,8 @@ void mem_free_blocks(void* addr, u_int size)
   //
   // 使用済みフラグを下げる
   for(i = 0; i < size; i++) mem_disable_bit(frame + i);
+  // [TODO] これで大丈夫かを確認
+  addr = NULL;
 }
 
 /*

@@ -17,8 +17,8 @@
 #define NTFS_MFT_ATTRIBUTE_VOLNAME  0x60
 #define NTFS_MFT_ATTRIBUTE_VOLINFO  0x70
 #define NTFS_MFT_ATTRIBUTE_DATA     0x80
-#define NTFS_MFT_ATTRIBUTE_INDEXRT  0x90
-#define NTFS_MFT_ATTRIBUTE_INDEXALC 0xA0
+#define NTFS_MFT_ATTRIBUTE_INDXROOT 0x90
+#define NTFS_MFT_ATTRIBUTE_INDXALLC 0xA0
 #define NTFS_MFT_ATTRIBUTE_BITMAP   0xB0
 #define NTFS_MFT_ATTRIBUTE_REPARSE  0xC0
 #define NTFS_MFT_ATTRIBUTE_LOGGED   0x100
@@ -149,20 +149,39 @@ typedef struct {
   u_char  nameLength;    // ファイル名の長さ
   u_char  nameType;      // ファイル名の種別(NTFS_MFT_ENTRY_NAMETYPE_*)
 } __attribute__((__packed__)) NTFS_ENTRY_FILENAME;
+// INDEX_ROOT
+typedef struct {
+  u_int typeID;
+  u_int colRule;
+  // [TODO] 追加
+} __attribute__((__packed__)) NTFS_ENTRY_INDXROOT;
+
+// runlist
+typedef struct {
+  long long int offset;
+  long long int length;
+  //NTFS_RUNLIST *blink;
+  //NTFS_RUNLIST *flink;
+} __attribute__((__packed__)) NTFS_RUNLIST;
 
 // 共用情報
 typedef struct {
+  // パーティションテーブル
   u_short lbaFirst[4];
+  // サイズ情報
   u_short bytesPerSector;
   u_char  sectorsPerCluster;
   u_short sectorsPerRecord;
   u_short bytesPerRecord;
+  // ファイルシステム全体
+  u_int numClusters;        // トータルクラスタ数
 } NTFS_INFO;
 
 /*----- 関数定義 -----*/
 NTFS_BS* ntfs_bootsector(MBR* mbr);
 NTFS_MFT* ntfs_mft(u_int mftCluster);
 void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID);
+NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry);
 void ata_read_ntfs(char *buf, u_char lba, u_char n);
 
 /*----- 変数定義 -----*/

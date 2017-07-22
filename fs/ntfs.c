@@ -15,6 +15,7 @@ NTFS_BS* ntfs_bootsector(MBR* mbr)
   ntfs_info.lbaFirst[0] = mbr->pTable1.lbaFirst;
   ntfs_info.bytesPerSector = bootsector->bpb.bytesPerSector;
   ntfs_info.sectorsPerCluster = bootsector->bpb.sectorsPerCluster;
+  ntfs_info.numClusters = do_div64(bootsector->numSectors, bootsector->bpb.sectorsPerCluster);
   // 謎仕様によりMFTのサイズを計算
   if (bootsector->clustersPerMFT >= 0) {
     // clusterPerMFT >= 0ならセクタ/クラスタをかける
@@ -40,21 +41,21 @@ NTFS_BS* ntfs_bootsector(MBR* mbr)
  * @param mftCluster MFT開始位置のクラスタ数
  * @return NTFS_MFT構造体のポインタ
  */
-NTFS_MFT* ntfs_mft(u_int mftCluster)
+NTFS_MFT* ntfs_mft(u_int mftSector)
 {
   // [TODO] メモリ削減のためsectorsPerRecordではなく[secPerRec / 4KB]を使うこと
   NTFS_MFT* mft = (NTFS_MFT*)malloc(ntfs_info.sectorsPerRecord);
   // MFTを読み込む
-  u_int64 access = (u_int64)mftCluster * ntfs_info.sectorsPerCluster;
-  ata_read_ntfs((char*)mft, access, ntfs_info.sectorsPerRecord);
+  ata_read_ntfs((char*)mft, mftSector, ntfs_info.sectorsPerRecord);
   // MFTの本体を探索する
   // [DEBUG] 探索する属性は引数で受け取るように
+  /*
   NTFS_ATTR_HEADER_NR *mft_data = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_DATA);
   if (mft_data == NULL) {
     fb_print("[DEBUG] Cannot find the attribute!");
     exit();
   }
-  
+  */
   return mft;
 }
 
@@ -64,7 +65,7 @@ NTFS_MFT* ntfs_mft(u_int mftCluster)
  * @param mftHeader MFT領域の先頭へのポインタ
  * @param typeID    探索する属性
  */
-void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID)
+void *ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID)
 {
   void* ptr = (void*)((u_int)mftHeader + mftHeader->attribOffset);
   u_int mftSize = ntfs_info.bytesPerRecord;
@@ -83,17 +84,92 @@ void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID)
     if (header->length == 0) {
       break;
     }
-
     // 属性を発見
     if (header->typeID == typeID
 	&& ptr + header->length <= (void*)((u_int)mftHeader + mftSize)) {
       return ptr;
     }
-    
+    // 次のエントリへ
     ptr += header->length;
   }
-
   return NULL;
+}
+
+/*
+ * runlistを読み込む
+ *
+ * @param entry  NTFS_ATTR_HEADER_NR構造体へのポインタ
+ * @param runlist NTFS_RUNLIST構造体へのポインタ
+ */
+NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry)
+{
+  int i;
+  void* runList = (char*)entry + entry->runListOffset;
+  u_int runListSize = entry->length - entry->runListOffset;
+  void* ptr = runList;
+
+  char failFlag = 0;
+  NTFS_RUNLIST *datarun = (NTFS_RUNLIST*)malloc(1);
+  NTFS_RUNLIST *datarun_ret = datarun;
+  char SIZE_RUNLIST = sizeof(NTFS_RUNLIST);
+  
+  long long int cp = 0LL;
+  
+  while((char)*(char*)ptr) {
+    // 範囲外
+    if (ptr + 1 > runList + runListSize) {
+      failFlag = 1;
+      break;
+    }
+    // runlistを解読する
+    char lenLength = (char)*(char*)ptr & 0x0f; // 長さのビット数
+    char lenOffset = (char)*(char*)ptr >> 4;   // オフセットのビット数
+    ptr++;
+    // 終端
+    if (lenOffset == 0) {
+      failFlag = 1;
+      break;
+    }
+    // おかしなデータ
+    if (ptr + lenLength + lenOffset > runList + runListSize
+	|| lenLength >= 8
+	|| lenOffset >= 8) {
+      failFlag = 1;
+      break;
+    }
+    // サイズとオフセットを取得
+    u_int64 length = 0;
+    long long int offset = 0;
+    for(i = 0; i < lenLength; i++, ptr++) {
+      // lenLengthバイトのlength情報をコピー
+      length |= (char)*(char*)ptr << (i * 8);
+    }
+    for(i = 0; i < lenOffset; i++, ptr++) {
+      // lenOffsetバイトのoffset情報をコピー
+      offset |= (char)*(char*)ptr << (i * 8);
+    }
+    // 負のオフセットも考える
+    if (offset >= (1 << (lenOffset * 8 - 1))) {
+      offset -= 1LL << (lenOffset * 8);
+    }
+    cp += offset;
+    // 範囲外
+    if (cp < 0 || ntfs_info.numClusters < cp) {
+      failFlag = 1;
+      break;
+    }
+    
+    datarun->offset = cp;
+    datarun->length = length;
+    datarun = (NTFS_RUNLIST*)((char*)datarun + SIZE_RUNLIST);
+  }
+  if (failFlag) {
+    // 失敗
+    free(datarun, 1);
+    return NULL;
+  }
+
+  return datarun_ret;
 }
 
 /*

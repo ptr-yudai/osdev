@@ -101,6 +101,21 @@ void itoa(int value, char *str, int base)
 }
 
 /*
+ * unicode2ascii - UnicodeをASCIIに変換する
+ *
+ * @param str Unicode文字列へのポインタ
+ * @param len 字数(バイト数ではない)
+ */
+void unicode2ascii(char* str, u_int len)
+{
+  u_int i;
+  for(i = 0; i < len; i++) {
+    str[i] = str[i*2];
+  }
+  str[i] = '\x00';
+}
+
+/*
  * do_div64 - 64ビット整数を32ビット整数で除算する
  *
  * @param dividend 被除数
