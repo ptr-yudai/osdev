@@ -17,6 +17,7 @@ typedef struct {
 typedef struct /*__attribute__((packed))*/ {
   VIRTUAL_VGA vga[SCR_VIRTUAL_MAX]; // 仮想画面へのポインタ
   u_char focus;                     // 現在表示中の画面番号
+  u_int scrsize;                    // フレームバッファのバイト数
 } SCR_VIRTUAL;
 
 /*----- 変数定義 ------*/

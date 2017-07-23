@@ -10,6 +10,7 @@
 void screen_init(void)
 {
   int i;
+  scrmgr.scrsize = VGA_HEIGHT * VGA_WIDTH * 2;
   
   // 仮想画面のメモリ確保
   for(i = 0; i < SCR_VIRTUAL_MAX; i++) {
@@ -29,7 +30,7 @@ void screen_init(void)
   scr_switch(0);
   
   // メニューを作成
-  //scr_draw_menu();
+  scr_draw_menu();
   fb_move_cursor(1, 0);
 }
 
@@ -50,7 +51,7 @@ void scr_switch(u_char n)
   // 画面を入れ替え
   memcpy((void*)VGA_FRAMEBUFFER,
 	 vvga_f.p_framebuffer,
-	 VGA_WIDTH * VGA_HEIGHT * 2);
+	 scrmgr.scrsize);
   scrmgr.focus = n;
 }
 
@@ -73,8 +74,27 @@ void scr_draw_menu(void)
  */
 void scr_redraw(void)
 {
+  u_char line[VGA_WIDTH * 2];
   VIRTUAL_VGA vvga;
   vvga = scrmgr.vga[scrmgr.focus];
+  // スクロール処理
+  if (fb_position > scrmgr.scrsize / 2) {
+    // [TODO] ちゃんとスクロールすること
+    memcpy((void*)line,
+	   (void*)(scr_currentfb() + scrmgr.scrsize - VGA_WIDTH * 2),
+	   VGA_WIDTH * 2);
+    // (仮)画面を消すだけ
+    fb_setpos(0, 0);
+    fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
+    fb_clrscr();
+    // 最後の一行は残す
+    memcpy((void*)(scr_currentfb() + VGA_WIDTH * 2),
+	   (void*)line,
+	   VGA_WIDTH * 2);
+    // メニューを表示
+    scr_draw_menu();
+    fb_move_cursor(2, 0);
+  }
   // 画面を入れ替え
   memcpy((void*)VGA_FRAMEBUFFER,
 	 vvga.p_framebuffer,

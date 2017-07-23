@@ -154,10 +154,19 @@ typedef struct {
 } __attribute__((__packed__)) NTFS_ENTRY_FILENAME;
 // INDEX_ROOT
 typedef struct {
-  u_int typeID;
-  u_int colRule;
-  // [TODO] 追加
+  u_int attributeType;
+  u_int collationRule;
+  u_int bytesPerIndex;
+  u_char clustersPerIndex;
+  u_char padding[3];
 } __attribute__((__packed__)) NTFS_ENTRY_INDXROOT;
+// Index Node Header
+typedef struct {
+  u_int offset;
+  u_int length;
+  u_int allocLength;
+  u_int flags;
+} __attribute__((__packed__)) NTFS_INODE_HEADER;
 
 // runlist
 typedef struct {
