@@ -5,12 +5,11 @@
  */
 void ntfs_investigate(u_int mftSector)
 { 
-  int i;
+  int i, n;
   char *filename = (char*)malloc(1);
   NTFS_MFT *file_mft;
   NTFS_ATTR_HEADER_R *mft_filename;
   NTFS_ENTRY_FILENAME *attr_filename;
-  
   
   for(i = 0; i < 12; i++) {
     // MFTエントリを読み込み
@@ -38,11 +37,16 @@ void ntfs_investigate(u_int mftSector)
     free(attr_filename, 1);
   }
 
-  fb_print("Choose the file number you want to investigate: ");
-  int n;
-  if (kb_getnumber(&n)) {
-    fb_printf("%d\n", n);
+  n = -1;
+  while(n < 0 || n > 12) {
+    fb_print("Enter the entry number you want to investigate: ");
+    if (kb_getnumber(&n) == 0) {
+      fb_print("[ERROR] Invalid number!\n");
+      n = -1;
+      continue;
+    }
   }
+  fb_printf("%d is selected.\n", n);
   
   // 解放
   free(filename, 1);

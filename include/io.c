@@ -48,6 +48,7 @@ void kb_getline(char* str)
       // ENTERなら終了
       fb_print("\n");
       is_end = 0;
+      *p_result = 0;
       break;
     case KEY_BACKSPACE:
       // 1文字目は無視
