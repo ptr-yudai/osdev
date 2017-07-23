@@ -67,6 +67,17 @@ u_int isascii(u_int c)
 }
 
 /*
+ * isdigit - 数字かを判別する
+ *
+ * @param c 判別する文字
+ * @return 数字なら1、それ以外は0
+ */
+u_char isdigit(u_char c)
+{
+  return (u_char)0x30 <= c && c < (u_char)0x40 ? 1 : 0;
+}
+
+/*
  * itoa - 数値を文字列に変換する
  *
  * @param value 数値

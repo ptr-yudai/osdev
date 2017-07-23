@@ -8,6 +8,9 @@
 #include "mbr.h"
 
 /*----- 定数定義 -----*/
+// FILE RecordのFlags
+#define NTFS_FILE_FLAG_FILE_IN_USE  0x01
+#define NTFS_FILE_FLAG_DIRECTORY    0x02
 // MFTのtypeID
 #define NTFS_MFT_ATTRIBUTE_STDINFO  0x10
 #define NTFS_MFT_ATTRIBUTE_ATTRLIST 0x20

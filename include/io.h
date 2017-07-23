@@ -51,6 +51,7 @@ typedef struct __attribute__((packed)) {
 // 文字入力
 u_char kb_getc(void);
 void kb_getline(char* str);
+u_char kb_getnumber(int* n);
 // 画面出力
 void fb_putc(u_char c);
 void fb_print(const char* str);

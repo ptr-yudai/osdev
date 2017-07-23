@@ -70,6 +70,43 @@ void kb_getline(char* str)
     }
   }
 }
+
+/*
+ * 数字を入力する
+ *
+ * @param num 数字を格納するポインタ
+ * @return 正しい入力なら1
+ */
+u_char kb_getnumber(int *num)
+{
+  u_char sign = 1;
+  int i;
+  char str[12]; // intは10行程度
+  // [TODO] オーバーフローを直す
+  kb_getline(str);
+  // 数値に変換
+  *num = 0;
+  for(i = 0; i < 12; i++) {
+    if (isdigit(str[i])) {
+      // 数字を変換
+      *num *= 10;
+      *num += (int)(str[i] - 0x30);
+    } else {
+      // NULLなら終了
+      if (str[i] == 0) break;
+      // 符号は許す
+      if (i == 0 && str[i] == '-') {
+	sign = -1;
+      } else {
+	return 0;
+      }
+    }
+    if (i == 11) return 0;
+  }
+  *num *= sign;
+  
+  return 1;
+}
   
 /*--------------------------------------------------*/
 //

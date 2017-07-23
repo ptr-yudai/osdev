@@ -3,7 +3,6 @@
 #include "./include/time.h"
 #include "./include/util.h"
 #include "./sys/screen.h"
-#include "./sys/forensics.h"
 #include "./hal/hal.h"
 
 #include "./hal/ide.h"
