@@ -25,6 +25,9 @@
 #define NTFS_MFT_ATTRIBUTE_BITMAP   0xB0
 #define NTFS_MFT_ATTRIBUTE_REPARSE  0xC0
 #define NTFS_MFT_ATTRIBUTE_LOGGED   0x100
+// MFTのformCode
+#define NTFS_MFT_ATTRIBUTE_RESIDENT    0x0
+#define NTFS_MFT_ATTRIBUTE_NONRESIDENT 0x1
 // STANDARD_INFORMATIONおよびFILE_NAMEエントリのflags
 #define NTFS_MFT_ENTRY_FLAGS_READONLY 0x0001
 #define NTFS_MFT_ENTRY_FLAGS_HIDDEN   0x0002
@@ -35,6 +38,9 @@
 #define NTFS_MFT_ENTRY_NAMETYPE_WIN32  1
 #define NTFS_MFT_ENTRY_NAMETYPE_DOS    2
 #define NTFS_MFT_ENTRY_NAMETYPE_WIN32D 3
+// INDEX_ROOTのflags
+#define NTFS_MFT_ENTRY_FLAGS_SMALLINDX 0x00
+#define NTFS_MFT_ENTRY_FLAGS_LARGEINDX 0x01
 
 /*----- 構造体定義 -----*/
 // BIOS Parameter Block
@@ -154,17 +160,24 @@ typedef struct {
 } __attribute__((__packed__)) NTFS_ENTRY_FILENAME;
 // INDEX_ROOT
 typedef struct {
-  u_int attributeType;
-  u_int collationRule;
-  u_int bytesPerIndex;
+  u_int  attributeType;
+  u_int  collationRule;
+  u_int  bytesPerIndex;
   u_char clustersPerIndex;
   u_char padding[3];
+  // 本当はINDEX_ROOTじゃない
+  u_int inodeOffset;
+  u_int inodeLength;
+  u_int inodeAllocLength;
+  u_int flags;
 } __attribute__((__packed__)) NTFS_ENTRY_INDXROOT;
+// INDEX_ALLOCATION
+
 // Index Node Header
 typedef struct {
-  u_int offset;
+  u_int mftref;
   u_int length;
-  u_int allocLength;
+  u_int dataLength;
   u_int flags;
 } __attribute__((__packed__)) NTFS_INODE_HEADER;
 

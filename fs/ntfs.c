@@ -142,11 +142,11 @@ NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry)
     long long int offset = 0;
     for(i = 0; i < lenLength; i++, ptr++) {
       // lenLengthバイトのlength情報をコピー
-      length |= (char)*(char*)ptr << (i * 8);
+      length |= (u_char)*(u_char*)ptr << (i * 8);
     }
     for(i = 0; i < lenOffset; i++, ptr++) {
       // lenOffsetバイトのoffset情報をコピー
-      offset |= (char)*(char*)ptr << (i * 8);
+      offset |= (u_char)*(u_char*)ptr << (i * 8);
     }
     // 負のオフセットも考える
     if (offset >= (1 << (lenOffset * 8 - 1))) {
