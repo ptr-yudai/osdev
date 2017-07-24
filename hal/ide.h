@@ -78,7 +78,7 @@ void ide_init(void);
 void ide_select_drive(u_char bus, u_char drive);
 u_char ide_identify(u_char bus, u_char drive);
 void ide_poll(u_short io);
-u_char ata_read(char* buf, u_char lba, u_char n);
+u_char ata_read(char* buf, u_int lba, u_int n);
 
 /*----- 変数定義 -----*/
 u_char ide_buffer[256];

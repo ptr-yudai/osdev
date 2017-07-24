@@ -41,14 +41,14 @@ void ide_init(void)
  * @param lba LBA
  * @param n   読み込みセクタ数
  */
-u_char ata_read(char *buf, u_char lba, u_char n)
+u_char ata_read(char *buf, u_int lba, u_int n)
 {
-  int i;
+  u_int i;
   u_short io = ATA_PRIMARY_IO;
   u_char drive = ATA_MASTER;
   u_char cmd = drive == ATA_MASTER ? 0xE0 : 0xF0;
   //u_char slavebit = drive == ATA_MASTER ? 0x00 : 0x01;
-
+  
   for(i = 0; i < n; i++) {
     outb(io + ATA_REG_HDDEVSEL, (cmd | (u_char)((lba >> 24 & 0x0F))));
     outb(io + 1, 0x00);

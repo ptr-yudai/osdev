@@ -30,16 +30,20 @@ void ntfs_investigate(u_int mftSector)
     // リストがINDEX_ALLOCに存在する(必ずNon-resident)
     mft_iallc = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_INDXALLC);
     // datarunを取得
-    fb_printf("datarun: 0x%x\n", mft_iallc->runListOffset);
     runlist = ntfs_parse_runlist(mft_iallc);
-    fb_printf("runlist: 0x%x\n", runlist);
     if (runlist == NULL) {
-      fb_print("[WARNING] Invalid datarun!");
+      fb_print("[WARNING] Invalid datarun!\n");
     } else {
-      fb_print("[INFO] It works!");
+      fb_print("[INFO] It works!\n");
     }
     // [TODO]データ取得
-    
+    char *buf = (char*)malloc(runlist->length);
+    ata_read_ntfs(buf,
+		  runlist->offset * ntfs_info.sectorsPerCluster,
+		  runlist->length * ntfs_info.sectorsPerCluster);
+    fb_printf("Data is @0x%x\n", buf);
+    fb_printb(buf, 10);
+    //free(buf, runlist->length);
   } else {
     // [TODO]実装
   }

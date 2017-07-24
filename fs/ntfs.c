@@ -175,7 +175,7 @@ NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry)
 /*
  * NTFSの先頭からリードする
  */
-void ata_read_ntfs(char *buf, u_char lba, u_char n)
+void ata_read_ntfs(char *buf, u_int lba, u_int n)
 {
   ata_read(buf, ntfs_info.lbaFirst[0] + lba, n);
 }

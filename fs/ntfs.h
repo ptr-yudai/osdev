@@ -207,7 +207,7 @@ NTFS_BS* ntfs_bootsector(MBR* mbr);
 NTFS_MFT* ntfs_mft(u_int mftCluster);
 void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID);
 NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry);
-void ata_read_ntfs(char *buf, u_char lba, u_char n);
+void ata_read_ntfs(char *buf, u_int lba, u_int n);
 
 /*----- 変数定義 -----*/
 NTFS_INFO ntfs_info;
