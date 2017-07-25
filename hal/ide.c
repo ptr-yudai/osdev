@@ -43,7 +43,7 @@ void ide_init(void)
  */
 u_char ata_read(char *buf, u_int lba, u_int n)
 {
-  u_int i;
+  u_int i, j;
   u_short io = ATA_PRIMARY_IO;
   u_char drive = ATA_MASTER;
   u_char cmd = drive == ATA_MASTER ? 0xE0 : 0xF0;
@@ -60,9 +60,10 @@ u_char ata_read(char *buf, u_int lba, u_int n)
     
     ide_poll(io);
   
-    for(i = 0; i < 256; i++) {
-      *(u_short*)(buf + i * 2) = inw(io + ATA_REG_DATA);
+    for(j = 0; j < 256; j++) {
+      *(u_short*)(buf + j * 2) = inw(io + ATA_REG_DATA);
     }
+    buf += 512;
     lba++;
   }
 

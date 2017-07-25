@@ -11,10 +11,12 @@ void ntfs_investigate(u_int mftSector)
   NTFS_ATTR_HEADER_R *mft_iroot;
   NTFS_ATTR_HEADER_NR *mft_iallc;
   NTFS_ENTRY_INDXROOT *attr_iroot;
-  NTFS_INODE_HEADER *inode;
+  NTFS_INODE_I30_HEADER *inode;
   NTFS_RUNLIST *runlist = NULL;
+  NTFS_RECORD_INDEX *rec_index;
   // FILEレコードを取得
   mft = ntfs_mft(mftSector + ntfs_info.sectorsPerRecord * 5);
+  /*----- INDEX_ROOTを確認 -----*/
   // INDEX_ROOTを取得
   mft_iroot = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_INDXROOT);
   // ストリーム名を取得
@@ -24,9 +26,10 @@ void ntfs_investigate(u_int mftSector)
   unicode2ascii(filename, mft_iroot->nameLength);
   fb_printf("Stream name is \"%s\"\n", filename);
   attr_iroot = (NTFS_ENTRY_INDXROOT*)((char*)mft_iroot + mft_iroot->contentOffset);
-  // INODE
-  inode = (NTFS_INODE_HEADER*)((char*)attr_iroot + 0x10 + attr_iroot->inodeOffset);
+  // INODE_I30を確認
+  inode = (NTFS_INODE_I30_HEADER*)((char*)attr_iroot + 0x10 + attr_iroot->inode.inodeOffset);
   if (inode->flags != NTFS_MFT_ENTRY_FLAGS_SMALLINDX) {
+    /*----- INDEX_ALLOCATIONを確認 -----*/
     // リストがINDEX_ALLOCに存在する(必ずNon-resident)
     mft_iallc = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_INDXALLC);
     // datarunを取得
@@ -36,16 +39,22 @@ void ntfs_investigate(u_int mftSector)
     } else {
       fb_print("[INFO] It works!\n");
     }
-    // [TODO]データ取得
-    char *buf = (char*)malloc(runlist->length);
-    ata_read_ntfs(buf,
-		  runlist->offset * ntfs_info.sectorsPerCluster,
-		  runlist->length * ntfs_info.sectorsPerCluster);
-    fb_printf("Data is @0x%x\n", buf);
-    fb_printb(buf, 10);
-    //free(buf, runlist->length);
+    rec_index = ntfs_find_index(runlist, 0);
+    fb_printf("%s\n", rec_index->signature);
+
+    /*----- INDEX_RECORDのファイル一覧を取得 -----*/
+    inode = (NTFS_INODE_I30_HEADER*)((char*)rec_index + 0x18 + rec_index->inode.inodeOffset);
+    int i;
+    for(i = 0; i < 10; i++) {
+      fb_printf("0x%x:", inode);
+      fb_printf("0x%x ", inode->length);
+      inode = (NTFS_INODE_I30_HEADER*)((char*)inode + inode->length);
+    }
+
+    free(rec_index, runlist->length);// [TODO] 正しくfree
   } else {
     // [TODO]実装
+    fb_print("[DEBUG] INDEX is resident! Implement it!\n");
   }
   
   // free

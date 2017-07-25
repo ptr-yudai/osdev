@@ -95,6 +95,22 @@ typedef struct {
   u_int   fixupPattern;
   u_short MFTRecNumber;
 } __attribute__((__packed__)) NTFS_MFT;
+// INODE Header
+typedef struct {
+  u_int   inodeOffset;
+  u_int   inodeLength;
+  u_int   inodeAllocLength;
+  u_int   flags;
+} __attribute__((__packed__)) NTFS_INODE_HEADER;
+// インックスレコード
+typedef struct {
+  u_char  signature[4];
+  u_short fixupOffset;
+  u_short fixupEntries;
+  u_int64 updateSeqNumber;
+  u_int64 vcnIndexAlloc;
+  NTFS_INODE_HEADER inode;
+} __attribute__((__packed__)) NTFS_RECORD_INDEX;
 
 // アトリビュートヘッダ(レジデント)
 typedef struct {
@@ -165,21 +181,17 @@ typedef struct {
   u_int  bytesPerIndex;
   u_char clustersPerIndex;
   u_char padding[3];
-  // 本当はINDEX_ROOTじゃない
-  u_int inodeOffset;
-  u_int inodeLength;
-  u_int inodeAllocLength;
-  u_int flags;
+  NTFS_INODE_HEADER inode;
 } __attribute__((__packed__)) NTFS_ENTRY_INDXROOT;
 // INDEX_ALLOCATION
 
 // Index Node Header
 typedef struct {
-  u_int mftref;
-  u_int length;
-  u_int dataLength;
-  u_int flags;
-} __attribute__((__packed__)) NTFS_INODE_HEADER;
+  u_int64 mftref;
+  u_short length;
+  u_short dataLength;
+  u_short flags;
+} __attribute__((__packed__)) NTFS_INODE_I30_HEADER;
 
 // runlist
 typedef struct {
@@ -207,6 +219,7 @@ NTFS_BS* ntfs_bootsector(MBR* mbr);
 NTFS_MFT* ntfs_mft(u_int mftCluster);
 void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID);
 NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry);
+NTFS_RECORD_INDEX *ntfs_find_index(NTFS_RUNLIST *runlist, u_int n);
 void ata_read_ntfs(char *buf, u_int lba, u_int n);
 
 /*----- 変数定義 -----*/
