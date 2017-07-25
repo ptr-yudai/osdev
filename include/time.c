@@ -26,7 +26,7 @@ u_int64 ts_file2unix(u_int64 filetime)
 /*
  * UNIXTIMEをDATETIMEに変換する
  *
- * @param unixtime UNIXTIME形式の日時データ
+ * @param unixtime UNIX形式でオフセットがFILETIMEの日時データ
  * @param datetime DATETIME構造体へのポインタ
  */
 void ts_unix2date(u_int64 unixtime, DATETIME* datetime)

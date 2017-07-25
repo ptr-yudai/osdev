@@ -14,6 +14,7 @@ void ntfs_investigate(u_int mftSector)
   NTFS_INODE_I30_HEADER *inode;
   NTFS_RUNLIST *runlist = NULL;
   NTFS_RECORD_INDEX *rec_index;
+  NTFS_ENTRY_FILENAME *rec_filename;
   // FILEレコードを取得
   mft = ntfs_mft(mftSector + ntfs_info.sectorsPerRecord * 5);
   /*----- INDEX_ROOTを確認 -----*/
@@ -36,18 +37,29 @@ void ntfs_investigate(u_int mftSector)
     runlist = ntfs_parse_runlist(mft_iallc);
     if (runlist == NULL) {
       fb_print("[WARNING] Invalid datarun!\n");
-    } else {
-      fb_print("[INFO] It works!\n");
+      return;
     }
     rec_index = ntfs_find_index(runlist, 0);
-    fb_printf("%s\n", rec_index->signature);
 
     /*----- INDEX_RECORDのファイル一覧を取得 -----*/
     inode = (NTFS_INODE_I30_HEADER*)((char*)rec_index + 0x18 + rec_index->inode.inodeOffset);
-    int i;
-    for(i = 0; i < 10; i++) {
-      fb_printf("0x%x:", inode);
-      fb_printf("0x%x ", inode->length);
+    // [TODO] inodeが破損していた場合に対応すること
+    fb_print("----- FILES ON C:\\ -----\n");
+    while(!(inode->flags & 1)) {
+      // ファイル情報を取得
+      rec_filename = (NTFS_ENTRY_FILENAME*)((char*)inode + 0x10);
+      memcpy(filename,
+	     (void*)((char*)rec_filename + sizeof(NTFS_ENTRY_FILENAME)),
+	     rec_filename->nameLength * 2);
+      unicode2ascii(filename, rec_filename->nameLength);
+      u_int64 unixtime = ts_file2unix(rec_filename->tsAccessed);
+      DATETIME datetime;
+      ts_unix2date(unixtime, &datetime);
+      fb_printf("%s: Created at %d/%d/%d %d:%d:%d\n",
+		filename,
+		datetime.year, datetime.month, datetime.day,
+		datetime.hour, datetime.minute, datetime.second);
+      // 次のinodeへ
       inode = (NTFS_INODE_I30_HEADER*)((char*)inode + inode->length);
     }
 
@@ -62,6 +74,7 @@ void ntfs_investigate(u_int mftSector)
   free(mft_iroot, 1);
   free(mft_iallc, 1);
   free(runlist, 1);
+  free(filename, 1);
 }
 /*
 { 

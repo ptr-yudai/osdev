@@ -3,6 +3,7 @@
 
 #include "../include/types.h"
 #include "../include/util.h"
+#include "../include/time.h"
 #include "../include/io.h"
 #include "ntfs.h"
 
