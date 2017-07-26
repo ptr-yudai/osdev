@@ -170,7 +170,7 @@ u_int64 do_div64(u_int64 dividend, u_int divisor)
  */
 u_int do_mod64(u_int64 dividend, u_int divisor)
 {
-  return (u_int)dividend / divisor;
+  return (u_int)dividend % divisor;
 } 
 
 /*
