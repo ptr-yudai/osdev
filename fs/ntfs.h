@@ -29,9 +29,22 @@
 #define NTFS_MFT_ATTRIBUTE_RESIDENT    0x0
 #define NTFS_MFT_ATTRIBUTE_NONRESIDENT 0x1
 // STANDARD_INFORMATIONおよびFILE_NAMEエントリのflags
-#define NTFS_MFT_ENTRY_FLAGS_READONLY 0x0001
-#define NTFS_MFT_ENTRY_FLAGS_HIDDEN   0x0002
-#define NTFS_MFT_ENTRY_FLAGS_SYSTEM   0x0004
+#define NTFS_MFT_ENTRY_FLAGS_READONLY  0x0001
+#define NTFS_MFT_ENTRY_FLAGS_HIDDEN    0x0002
+#define NTFS_MFT_ENTRY_FLAGS_SYSTEM    0x0004
+#define NTFS_MFT_ENTRY_FLAGS_ARCHIVE   0x0020
+#define NTFS_MFT_ENTRY_FLAGS_DEVICE    0x0040
+#define NTFS_MFT_ENTRY_FLAGS_NORMAL    0x0080
+#define NTFS_MFT_ENTRY_FLAGS_TEMPORARY 0x0100
+#define NTFS_MFT_ENTRY_FLAGS_SPARSE    0x0200
+#define NTFS_MFT_ENTRY_FLAGS_REPARSE   0x0400
+#define NTFS_MFT_ENTRY_FLAGS_COMPRESS  0x0800
+#define NTFS_MFT_ENTRY_FLAGS_OFFLINE   0x1000
+#define NTFS_MFT_ENTRY_FLAGS_NOINDEX   0x2000
+#define NTFS_MFT_ENTRY_FLAGS_ENCRYPTED 0x4000
+#define NTFS_MFT_ENTRY_FLAGS_DIRECTORY 0x10000000
+#define NTFS_MFT_ENTRY_FLAGS_INDEXVIEW 0x20000000
+
 // [TODO] 追加
 // FILE_NAMEのnameType
 #define NTFS_MFT_ENTRY_NAMETYPE_POSIX  0
@@ -41,6 +54,9 @@
 // INDEX_ROOTのflags
 #define NTFS_MFT_ENTRY_FLAGS_SMALLINDX 0x00
 #define NTFS_MFT_ENTRY_FLAGS_LARGEINDX 0x01
+// Nodeのflags
+#define NTFS_MFT_INODE_FLAGS_CHILDNODE  0x01
+#define NTFS_MFT_INODE_FLAGS_TERMINATOR 0x02
 
 /*----- 構造体定義 -----*/
 // BIOS Parameter Block
@@ -163,6 +179,7 @@ typedef struct {
 // FILE_NAME
 typedef struct {
   u_int64 parentDir;     // 親ディレクトリ
+  // 正確には6バイトが親ディレクトリで2バイトが親ディレクトリのfixup番号
   u_int64 tsCreated;     // 作成日
   u_int64 tsModified;    // 変更日
   u_int64 tsMFTModified; // MFTの変更日
@@ -190,7 +207,7 @@ typedef struct {
   u_int64 mftref;
   u_short length;
   u_short dataLength;
-  u_short flags;
+  u_char  flags;
 } __attribute__((__packed__)) NTFS_INODE_I30_HEADER;
 
 // runlist
@@ -215,7 +232,7 @@ typedef struct {
 } NTFS_INFO;
 
 /*----- 関数定義 -----*/
-NTFS_BS* ntfs_bootsector(MBR* mbr);
+NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num);
 NTFS_MFT* ntfs_mft(u_int mftCluster);
 void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID);
 NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry);

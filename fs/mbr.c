@@ -20,7 +20,6 @@ MBR* mbr_load(void)
     // MBR修復用にパーティションを強制的に探索するコードを入れる
     exit();
   }
-  fb_print("[DEBUG] MBR is loaded correctly.\n");
   return mbr;
 }
 

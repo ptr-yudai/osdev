@@ -4,15 +4,22 @@
  * NTFSのブートセクタをロードする
  *
  * @param mbr MBR構造体のポインタ
+ * @param num 参照するパーティションテーブル
  * @return NTFS_BS構造体のポインタ
  */
-NTFS_BS* ntfs_bootsector(MBR* mbr)
+NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num)
 {
   NTFS_BS* bootsector = (NTFS_BS*)malloc(1);
-  // [TODO] pTable1以外も参照
-  ata_read((char*)bootsector, mbr->pTable1.lbaFirst, 1);
+  pTable *table;
+  switch(num) {
+  case 1: table = &mbr->pTable1; break;
+  case 2: table = &mbr->pTable2; break;
+  case 3: table = &mbr->pTable3; break;
+  case 4: table = &mbr->pTable4; break;
+  }
+  ata_read((char*)bootsector, table->lbaFirst, 1);
   // 必要な情報は保存
-  ntfs_info.lbaFirst[0] = mbr->pTable1.lbaFirst;
+  ntfs_info.lbaFirst[0] = table->lbaFirst;
   ntfs_info.bytesPerSector = bootsector->bpb.bytesPerSector;
   ntfs_info.sectorsPerCluster = bootsector->bpb.sectorsPerCluster;
   ntfs_info.numClusters = do_div64(bootsector->numSectors, bootsector->bpb.sectorsPerCluster);
@@ -194,6 +201,7 @@ NTFS_RECORD_INDEX *ntfs_find_index(NTFS_RUNLIST *runlist, u_int n)
   ata_read_ntfs((char*)index,
 		runlist->offset * ntfs_info.sectorsPerCluster,
 		runlist->length * ntfs_info.sectorsPerCluster);
+  fb_printf("0x%x\n", runlist->offset * ntfs_info.sectorsPerCluster);
   return index;
 }
 

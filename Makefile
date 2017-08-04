@@ -32,7 +32,7 @@ kernel.elf: link.ld $(OBJECTS)
 
 ## 実行する
 run:
-	qemu-system-i386 -boot d -cdrom my_os.iso -m 512M -hda hdd/dfr-01-ntfs.dd
+	qemu-system-i386 -boot d -cdrom my_os.iso -m 512M -hda hdd/ntfs.img
 
 ## デバッグする
 debug:
