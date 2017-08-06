@@ -18,6 +18,31 @@ u_int strlen(const char* str)
 }
 
 /*
+ * strncmp - 文字列をn文字比較する
+ *
+ * @param s1 比較文字列1
+ * @param s2 比較文字列2
+ * @param n  比較文字数
+ * @return x s1>s2で1, s1<s2で-1, s1=s2で0を返す
+ */
+int strncmp(const char* s1, const char* s2, u_int n)
+{
+  u_int i;
+  const char* p1 = s1;
+  const char* p2 = s2;
+  
+  for(i = 0; i < n; i++) {
+    if (*p1 > *p2) {
+      return 1;
+    } else if (*p1 < *p2) {
+      return -1;
+    }
+    p1++; p2++;
+  }
+  return 0;
+}
+
+/*
  * memcpy - メモリにデータをコピーする
  *
  * @param to   コピー先のメモリブロック

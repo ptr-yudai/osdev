@@ -1,8 +1,10 @@
 #include "./include/multiboot.h"
 #include "./include/io.h"
 #include "./include/time.h"
+#include "./include/sound.h"
 #include "./include/util.h"
 #include "./sys/screen.h"
+#include "./sys/shell.h"
 #include "./hal/hal.h"
 #include "./fs/ntfs_scanner.h"
 
@@ -23,12 +25,21 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   fb_printf("[INFO] Magic Number: 0x%x\n", magic);
   fb_printf("[INFO] Memory Size: %d MB\n", mbd->mem_upper / 1024);
 
+  // コマンド入力
+  k_shell();
+
+  /*
   // パーティションテーブル一覧
   scr_switch(1);
   u_int ptOffset = ntfs_mmls();
   // ルートディレクトリ一覧
   scr_switch(2);
   ntfs_fls(ptOffset);
+  // MFT Reference Numberからファイル内容を取得
+  scr_switch(3);
+  ntfs_icat(ptOffset, 0x1B); //(仮)
+  */
+
   // 終わり
   scr_switch(0);
   fb_print("\n[DEBUG] CPU is going to halt. See you...\n");

@@ -8,6 +8,7 @@ void __do_div64(void);
 
 /*----- 関数定義 -----*/
 u_int strlen(const char*);
+int strncmp(const char* s1, const char* s2, u_int n);
 void *malloc(u_int);
 void free(void* addr, u_int size);
 void *memcpy(void*, const void*, u_int);

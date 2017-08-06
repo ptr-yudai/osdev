@@ -11,6 +11,20 @@
 // FILE RecordのFlags
 #define NTFS_FILE_FLAG_FILE_IN_USE  0x01
 #define NTFS_FILE_FLAG_DIRECTORY    0x02
+// ルートに存在するMFTのinode
+#define NTFS_MFT_INODE_MFT     0
+#define NTFS_MFT_INODE_MFTMIRR 1
+#define NTFS_MFT_INODE_LOGFILE 2
+#define NTFS_MFT_INODE_VOLUME  3
+#define NTFS_MFT_INODE_ATTRDEF 4
+#define NTFS_MFT_INODE_ROOTDIR 5
+#define NTFS_MFT_INODE_BITMAP  6
+#define NTFS_MFT_INODE_BOOT    7
+#define NTFS_MFT_INODE_BADCLUS 8
+#define NTFS_MFT_INODE_QUOTA   9
+#define NTFS_MFT_INODE_SECURE  9
+#define NTFS_MFT_INODE_UPCASE  10
+#define NTFS_MFT_INODE_EXTEND  11
 // MFTのtypeID
 #define NTFS_MFT_ATTRIBUTE_STDINFO  0x10
 #define NTFS_MFT_ATTRIBUTE_ATTRLIST 0x20
@@ -108,8 +122,11 @@ typedef struct {
   u_int   allLength;
   u_int64 baseMFTRec;
   u_int   nextAttrID;
+  /*
   u_int   fixupPattern;
   u_short MFTRecNumber;
+  */
+  u_int   MFTRecNumber;
 } __attribute__((__packed__)) NTFS_MFT;
 // INODE Header
 typedef struct {
@@ -236,7 +253,7 @@ NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num);
 NTFS_MFT* ntfs_mft(u_int mftCluster);
 void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID);
 NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry);
-NTFS_RECORD_INDEX *ntfs_find_index(NTFS_RUNLIST *runlist, u_int n);
+void* ntfs_find_data(NTFS_RUNLIST *runlist, u_int n);
 void ata_read_ntfs(char *buf, u_int lba, u_int n);
 
 /*----- 変数定義 -----*/

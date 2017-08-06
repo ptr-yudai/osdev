@@ -185,10 +185,10 @@ NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry)
  * @param runlist ntfs_parse_runlistで取得したDatarun
  * @param n       取得したいINDEXレコードの番号(Datarunの何番目か)
  */
-NTFS_RECORD_INDEX *ntfs_find_index(NTFS_RUNLIST *runlist, u_int n)
+void *ntfs_find_data(NTFS_RUNLIST *runlist, u_int n)
 {
   u_int i;
-  NTFS_RECORD_INDEX *index;
+  void *index;
   // Datarunをずらす
   for(i = 0; i < n; i++) {
     runlist = (NTFS_RUNLIST*)((char*)runlist + sizeof(NTFS_RUNLIST));
@@ -197,7 +197,7 @@ NTFS_RECORD_INDEX *ntfs_find_index(NTFS_RUNLIST *runlist, u_int n)
     return NULL;
   }
   // INDEXレコードを取得
-  index = (NTFS_RECORD_INDEX*)malloc(runlist->length);
+  index = (void*)malloc(runlist->length);
   ata_read_ntfs((char*)index,
 		runlist->offset * ntfs_info.sectorsPerCluster,
 		runlist->length * ntfs_info.sectorsPerCluster);
