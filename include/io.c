@@ -154,6 +154,40 @@ void fb_print(const char* str)
 }
 
 /*
+ * エラーをカーソルに書き込む
+ *
+ * @param str 書き込むエラーメッセージ
+ * @param lev エラーレベル
+ */
+void fb_debug(const char* str, char lev)
+{
+  u_char scr = scr_currentscr();
+  scr_switch(SCR_USER_ERROR);
+  switch(lev) {
+  case ER_INFO:
+    fb_print("[MESSAGE] ");
+    break;
+  case ER_DEBUG:
+    fb_print("[ DEBUG ] ");
+    break;
+  case ER_CATION:
+    fb_print("[ ERROR ] ");
+    break;
+  case ER_WARNING:
+    fb_print("[WARNING] ");
+    break;
+  case ER_FATAL:
+    fb_print("[ FATAL ] ");
+    break;
+  default:
+    fb_print("[NOTHING] ");
+    break;
+  }
+  fb_print(str);
+  scr_switch(scr);
+}
+
+/*
  * バイナリをカーソルに書き込む
  *
  * @param bin  書き込むバイナリ
@@ -268,7 +302,9 @@ void fb_clrscr(void)
   // 80列, 25行を削除
   fb_move_cursor(0, 0);
   for(i = 0; i < 2000; i++) fb_putc(' ');
-  fb_move_cursor(0, 0);
+  // メニューを描画
+  scr_draw_menu();
+  fb_move_cursor(1, 0);
 }
 
 /*

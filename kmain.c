@@ -42,5 +42,5 @@ void kmain(multiboot_info_t* mbd, u_int magic)
 
   // 終わり
   scr_switch(0);
-  fb_print("\n[DEBUG] CPU is going to halt. See you...\n");
+  fb_debug("CPU is going to halt. See you...\n", ER_DEBUG);
 }

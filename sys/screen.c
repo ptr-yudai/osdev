@@ -30,7 +30,6 @@ void screen_init(void)
   scr_switch(0);
   
   // メニューを作成
-  scr_draw_menu();
   fb_move_cursor(1, 0);
 }
 
@@ -47,12 +46,15 @@ void scr_switch(u_char n)
   // 初期化
   vvga_f = scrmgr.vga[n];
   // カーソルを入れ替え
+  scrmgr.vga[scrmgr.focus].fb_position = fb_position;
   fb_position = vvga_f.fb_position;
   // 画面を入れ替え
   memcpy((void*)VGA_FRAMEBUFFER,
 	 vvga_f.p_framebuffer,
 	 scrmgr.scrsize);
   scrmgr.focus = n;
+  // カーソルを再描画
+  fb_redraw_cursor();
 }
 
 /*
@@ -110,4 +112,14 @@ void scr_redraw(void)
 void* scr_currentfb(void)
 {
   return scrmgr.vga[scrmgr.focus].p_framebuffer;
+}
+
+/*
+ * 現在フォーカス中の画面IDを取得する
+ *
+ * @return フォーカス中の仮想画面のID
+ */
+u_char scr_currentscr(void)
+{
+  return scrmgr.focus;
 }

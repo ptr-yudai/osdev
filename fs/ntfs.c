@@ -17,12 +17,20 @@ NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num)
   case 3: table = &mbr->pTable3; break;
   case 4: table = &mbr->pTable4; break;
   }
+
   ata_read((char*)bootsector, table->lbaFirst, 1);
+
+  // 破損もしくは未使用の可能性あり
+  if (bootsector->signature != 0xAA55) {
+    
+  }
+
   // 必要な情報は保存
   ntfs_info.lbaFirst[0] = table->lbaFirst;
   ntfs_info.bytesPerSector = bootsector->bpb.bytesPerSector;
   ntfs_info.sectorsPerCluster = bootsector->bpb.sectorsPerCluster;
   ntfs_info.numClusters = do_div64(bootsector->numSectors, bootsector->bpb.sectorsPerCluster);
+
   // 謎仕様によりMFTのサイズを計算
   if (bootsector->clustersPerMFT >= 0) {
     // clusterPerMFT >= 0ならセクタ/クラスタをかける
@@ -39,6 +47,7 @@ NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num)
       ntfs_info.sectorsPerRecord++;
     }
   }
+
   return bootsector;
 }
 

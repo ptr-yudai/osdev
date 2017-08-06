@@ -88,7 +88,7 @@ void ide_poll(u_short io)
  retry:
   status = inb(io + ATA_REG_STATUS);
   if(status & ATA_SR_ERR) {
-    fb_print("[WARNING] Something is wrong with HDD!\n");
+    fb_debug("Something is wrong with HDD!\n", ER_WARNING);
     return;
   }
   if(!(status & ATA_SR_DRQ)) goto retry;

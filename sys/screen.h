@@ -7,7 +7,13 @@
 #include "../hal/mem.h"
 
 /*----- 定数定義 -----*/
+// 最大画面数
 #define SCR_VIRTUAL_MAX 4
+// 画面の役割
+#define SCR_SYSTEM_MSG  0  // OSレベルのデバッグメッセージ
+#define SCR_USER_ERROR  1  // ユーザーエラー
+#define SCR_PROGRAM     2  // プログラムの出力
+#define SCR_TEMPORARY   3  // 一時的な使用
 
 /*----- 構造体定義 ------*/
 typedef struct {
@@ -29,5 +35,6 @@ void scr_switch(u_char n);
 void scr_draw_menu(void);
 void scr_redraw(void);
 void* scr_currentfb(void);
+u_char scr_currentscr(void);
 
 #endif

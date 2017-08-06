@@ -38,6 +38,12 @@ enum VGA_COLOR {
 /* I/Oポートのコマンド */
 #define FB_HIGH_BYTE_COMMAND 14
 #define FB_LOW_BYTE_COMMAND  15
+// エラーレベル
+#define ER_INFO    0  // ユーザーに見せたい情報
+#define ER_DEBUG   1  // デバッグ用メッセージ
+#define ER_CATION  2  // 注意喚起
+#define ER_WARNING 3  // 予期しないエラー
+#define ER_FATAL   4  // 手の付けようがないエラー
 
 /*----- 構造体 -----*/
 // VGA(フレームバッファ)
@@ -55,6 +61,7 @@ u_char kb_getnumber(int* n);
 // 画面出力
 void fb_putc(u_char c);
 void fb_print(const char* str);
+void fb_debug(const char* str, char lev);
 void fb_printb(char* bin, u_int size);
 void fb_printx(u_int n);
 void fb_printf(char *format, ...);

@@ -21,7 +21,7 @@ void ntfs_icat(u_int mftSector, u_int64 mftref)
 	(mft->signature[1] == 'I') &
 	(mft->signature[2] == 'L') &
 	(mft->signature[3] == 'E'))) {
-    fb_print("[WARNING] Invalid MFT Record!\n");
+    fb_debug("Invalid MFT Record!\n", ER_WARNING);
     goto icat_return;
   }
 
@@ -29,14 +29,14 @@ void ntfs_icat(u_int mftSector, u_int64 mftref)
   mft_data = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_DATA);
   // [TODO] residentの実装
   if (mft_data->formCode == NTFS_MFT_ATTRIBUTE_RESIDENT) {
-    fb_print("[WARNING] Resident $MFT is not supported!\n");
+    fb_debug("Resident $MFT is not supported!\n", ER_FATAL);
     goto icat_return;
   }
   // datarunを取得
   runlist = ntfs_parse_runlist(mft_data);
   if (runlist == NULL) {
     scr_switch(0);
-    fb_print("[ERROR] Invalid datarun!\n");
+    fb_debug("Invalid datarun!\n", ER_WARNING);
     goto icat_return;
   }
   // 0番目のrunlistを取得
@@ -105,7 +105,7 @@ void ntfs_fls(u_int mftSector)
 	(mft->signature[1] == 'I') &
 	(mft->signature[2] == 'L') &
 	(mft->signature[3] == 'E'))) {
-    fb_print("[WARNING] Invalid MFT Record!\n");
+    fb_debug("Invalid MFT Record!\n", ER_WARNING);
     goto fls_return;
   }
 
@@ -124,7 +124,7 @@ void ntfs_fls(u_int mftSector)
     runlist = ntfs_parse_runlist(mft_iallc);
     if (runlist == NULL) {
       scr_switch(0);
-      fb_print("[ERROR] Invalid datarun!\n");
+      fb_debug("Invalid datarun!\n", ER_WARNING);
       goto fls_return;
     }
     // 0番目のrunlistを取得
@@ -158,7 +158,7 @@ void ntfs_fls(u_int mftSector)
     free(mft_iallc, 1);
   } else {
     // [TODO]実装
-    fb_print("[DEBUG] INDEX is resident! Implement it!\n");
+    fb_debug("INDEX is resident! Implement it!\n", ER_FATAL);
   }
 
   // 不要な領域を解放
@@ -168,102 +168,6 @@ void ntfs_fls(u_int mftSector)
   free(runlist, 1);
   free(filename, 1);
 }
-
-/*
- * NTFSの調査開始
- */
-void ntfs_investigate(u_int mftSector)
-// 今は決め打ちでルートディレクトリを選択
-{
-  mftSector = mftSector;
-  /*
-  char *filename = (char*)malloc(1);
-  NTFS_MFT *mft;
-  NTFS_ATTR_HEADER_R *mft_iroot;
-  NTFS_ATTR_HEADER_NR *mft_iallc;
-  NTFS_ENTRY_INDXROOT *attr_iroot;
-  NTFS_INODE_I30_HEADER *inode;
-  NTFS_RUNLIST *runlist = NULL;
-  NTFS_RECORD_INDEX *rec_index;
-  NTFS_ENTRY_FILENAME *rec_filename;
-  NTFS_ATTR_HEADER_NR *entry_mft;
-  // MFTレコードを取得
-  mft = ntfs_mft(mftSector + ntfs_info.sectorsPerRecord * 0);
-  entry_mft = (NTFS_ATTR_HEADER_NR*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_DATA);
-  runlist = ntfs_parse_runlist(entry_mft);
-  if (runlist == NULL) {
-    fb_print("[WARNING] Invalid datarun!\n");
-    return;
-  }
-  NTFS_MFT *data = (NTFS_MFT*)ntfs_find_index(runlist, 0);
-  if (data == NULL) {
-    fb_print("Invalid data!\n");
-    return;
-  }
-  fb_printf("%s\n", data->signature);
-  
-  return;
-  ////////// [DEBUG] ここまで
-  */
-}
-/*
-{ 
-  int i, n;
-  char *filename = (char*)malloc(1);
-  NTFS_MFT *file_mft;
-  NTFS_ATTR_HEADER_R *mft_filename;
-  NTFS_ENTRY_FILENAME *attr_filename;
-  
-  for(i = 0; i < 12; i++) {
-    // MFTエントリを読み込み
-    file_mft = ntfs_mft(mftSector + ntfs_info.sectorsPerRecord * i);
-    switch(file_mft->flags) {
-    case 0x00: fb_print("[DEL    ] "); break;
-    case 0x01: fb_print("[       ] "); break;
-    case 0x02: fb_print("[DEL DIR] "); break;
-    case 0x03: fb_print("[    DIR] "); break;
-    default:   fb_print("[BROKEN!] "); break;
-    }
-    // FILENAME属性を探索
-    mft_filename = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(file_mft, NTFS_MFT_ATTRIBUTE_FILENAME);
-    // FILENAME属性本体を読み込み
-    attr_filename = (NTFS_ENTRY_FILENAME*)((char*)mft_filename + mft_filename->contentOffset);
-    // ファイル名を取得
-    memcpy(filename,
-	   (void*)((char*)attr_filename + sizeof(NTFS_ENTRY_FILENAME)),
-	   attr_filename->nameLength * 2);
-    unicode2ascii(filename, attr_filename->nameLength);
-    fb_printf("%d --> %s\n", i, filename);
-    // 解放
-    free(file_mft, ntfs_info.sectorsPerRecord);
-    free(mft_filename, 1);
-    free(attr_filename, 1);
-  }
-
-  n = -1;
-  while(n < 0 || n > 12) {
-    fb_print("Enter the entry number you want to investigate: ");
-    if (kb_getnumber(&n) == 0) {
-      fb_print("[ERROR] Invalid number!\n");
-      n = -1;
-      continue;
-    }
-  }
-  fb_printf("%d is selected.\n", n);
-
-  file_mft = ntfs_mft(mftSector + ntfs_info.sectorsPerRecord * n);
-  if (file_mft->flags & NTFS_FILE_FLAG_DIRECTORY) {
-    fb_print("It is a directory.\n");
-  } else {
-    fb_print("It is a file.\n");
-  }
-  free(file_mft, ntfs_info.sectorsPerRecord);
-  
-  // 解放
-  free(filename, 1);
-}
-*/
-
 
 /*
  * mmls - パーティションレイアウトを表示する
