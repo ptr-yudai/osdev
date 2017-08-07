@@ -5,6 +5,11 @@
 #include "../include/io.h"
 #include "../fs/ntfs_scanner.h"
 
+/*----- 定数定義 -----*/
+#define SHELL_CMD_LENGTH  64
+#define SHELL_ARGV_SIZE   8
+#define SHELL_ARGV_LENGTH 32
+
 /*----- 構造体定義 -----*/
 typedef struct {
   u_int mftref;    // カレントディレクトリ

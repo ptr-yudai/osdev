@@ -22,7 +22,8 @@ NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num)
 
   // 破損もしくは未使用の可能性あり
   if (bootsector->signature != 0xAA55) {
-    
+    fb_debug("Bootsector is corrupted.\n", ER_WARNING);
+    return NULL;
   }
 
   // 必要な情報は保存

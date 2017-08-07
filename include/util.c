@@ -137,6 +137,44 @@ void itoa(int value, char *str, int base)
 }
 
 /*
+ * atoi - 文字列を数値に変換する
+ *
+ * @param str   文字列へのポインタ
+ * @param base  基数
+ */
+int atoi(char *str, int base)
+{
+  int res = 0;
+  char pre = 1;
+  char *ptr = str;
+  // 基数をチェック
+  if ( base < 2 || base > 36 ) {
+    return 0;
+  }
+  // 符号を確認
+  if (*ptr == '-') {
+    pre = -1;
+    ptr++;
+  } else if (*ptr == '+') {
+    ptr++;
+  }
+  // 文字列を数値に変換
+  for(; *ptr != 0; ptr++) {
+    res *= base;
+    if ('0' <= *ptr && *ptr <= '9') {
+      res += *ptr - 0x30;
+    } else if ('A' <= *ptr && *ptr <= 'Z') {
+      res += *ptr - 0x37;
+    } else if ('a' <= *ptr && *ptr <= 'z') {
+      res += *ptr - 0x57;
+    } else {
+      return 0;
+    }
+  }
+  return res * pre;
+}
+
+/*
  * unicode2ascii - UnicodeをASCIIに変換する
  *
  * @param str Unicode文字列へのポインタ

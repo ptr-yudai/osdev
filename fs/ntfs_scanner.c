@@ -221,6 +221,10 @@ u_int ntfs_mmls(void)
     */
   }
   bootsector = ntfs_bootsector(mbr, num);
+  if (bootsector == NULL) {
+    free(mbr, 1);
+    return 0;
+  }
   // 不要な領域の解放
   free(mbr, 1);
   free(bootsector, 1);

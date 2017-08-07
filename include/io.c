@@ -24,6 +24,7 @@ u_char kb_getc(void)
   while(key == KEY_UNKNOWN || key == 0x00) {
     key = kb_get_lastkey();
     key = kb_key2ascii_jp(key);
+    __asm__ __volatile__("hlt");
   }
   kb_info.lastkey = KEY_UNKNOWN;
   return key;
