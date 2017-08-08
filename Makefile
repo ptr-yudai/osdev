@@ -26,7 +26,7 @@ kernel.elf: link.ld $(OBJECTS)
 
 ## CとASMをビルド
 %.o: %.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CINCLUDE) $(CFLAGS) $< -o $@
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@
 

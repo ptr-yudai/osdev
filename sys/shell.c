@@ -9,6 +9,7 @@ void k_shell(void)
   char argv[SHELL_ARGV_SIZE][SHELL_ARGV_LENGTH];
   char *ptr;
   int i, argc;
+  void *freechk_b = NULL, *freechk_f = NULL;
   
   // 初期化
   sh_info.mftref = 0;
@@ -16,9 +17,19 @@ void k_shell(void)
 
   // コマンド受付
   while(1) {
+    // free忘れを検知
+    freechk_b = malloc(1);
+    if (freechk_b > freechk_f) {
+      fb_debug("Did you call free appropriately?\n", ER_CATION);
+    }
+
+    // コマンド入力
     scr_switch(1);
     fb_printf("[%d]# ", sh_info.mftref);
     kb_getline(cmd);
+
+    freechk_f = freechk_b;
+    free(freechk_b, 1);
 
     // 結果用画面を初期化
     scr_switch(2);
@@ -61,6 +72,15 @@ void k_shell(void)
 	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
       } else {
 	ntfs_icat(sh_info.mftSector, atoi(argv[1], 16));
+      }
+    }
+    // cd - ディレクトリを移動
+    if (strncmp(argv[0], "cd", 3) == 0) {
+      if (sh_info.mftSector == 0) {
+	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
+      } else {
+	ntfs_cd(sh_info.mftSector, atoi(argv[1], 16));
+	// [TODO] 未実装
       }
     }
 

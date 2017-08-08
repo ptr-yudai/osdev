@@ -28,18 +28,6 @@ void kmain(multiboot_info_t* mbd, u_int magic)
   // コマンド入力
   k_shell();
 
-  /*
-  // パーティションテーブル一覧
-  scr_switch(1);
-  u_int ptOffset = ntfs_mmls();
-  // ルートディレクトリ一覧
-  scr_switch(2);
-  ntfs_fls(ptOffset);
-  // MFT Reference Numberからファイル内容を取得
-  scr_switch(3);
-  ntfs_icat(ptOffset, 0x1B); //(仮)
-  */
-
   // 終わり
   scr_switch(0);
   fb_debug("CPU is going to halt. See you...\n", ER_DEBUG);
