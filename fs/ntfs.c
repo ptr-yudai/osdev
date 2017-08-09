@@ -16,6 +16,9 @@ NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num)
   case 2: table = &mbr->pTable2; break;
   case 3: table = &mbr->pTable3; break;
   case 4: table = &mbr->pTable4; break;
+  default:
+    fb_debug("Invalid partition table selected.", ER_CATION);
+    return NULL;
   }
 
   ata_read((char*)bootsector, table->lbaFirst, 1);
@@ -27,7 +30,7 @@ NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num)
   }
 
   // 必要な情報は保存
-  ntfs_info.lbaFirst[0] = table->lbaFirst;
+  ntfs_info.lbaFirst = table->lbaFirst;
   ntfs_info.bytesPerSector = bootsector->bpb.bytesPerSector;
   ntfs_info.sectorsPerCluster = bootsector->bpb.sectorsPerCluster;
   ntfs_info.numClusters = do_div64(bootsector->numSectors, bootsector->bpb.sectorsPerCluster);
@@ -211,7 +214,7 @@ void *ntfs_find_data(NTFS_RUNLIST *runlist, u_int n)
   ata_read_ntfs((char*)index,
 		runlist->offset * ntfs_info.sectorsPerCluster,
 		runlist->length * ntfs_info.sectorsPerCluster);
-  fb_printf("0x%x\n", runlist->offset * ntfs_info.sectorsPerCluster);
+  //fb_printf("0x%x\n", runlist->offset * ntfs_info.sectorsPerCluster);
   return index;
 }
 
@@ -220,5 +223,5 @@ void *ntfs_find_data(NTFS_RUNLIST *runlist, u_int n)
  */
 void ata_read_ntfs(char *buf, u_int lba, u_int n)
 {
-  ata_read(buf, ntfs_info.lbaFirst[0] + lba, n);
+  ata_read(buf, ntfs_info.lbaFirst + lba, n);
 }

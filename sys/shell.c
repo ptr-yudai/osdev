@@ -55,15 +55,21 @@ void k_shell(void)
 
     // mmls - パーティションの指定
     if (strncmp(argv[0], "mmls", 5) == 0) {
-      sh_info.mftref = ntfs_mmls();
-      sh_info.mftSector = sh_info.mftref;
+      sh_info.mftSector = ntfs_mmls();
+      sh_info.mftref = NTFS_MFT_INODE_ROOTDIR;
     }
     // fls - ファイル一覧
     if (strncmp(argv[0], "fls", 4) == 0) {
       if (sh_info.mftSector == 0) {
 	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
       } else {
-	ntfs_fls(sh_info.mftSector);
+	if (argc == 1) {
+	  // カレントディレクトリを参照
+	  ntfs_fls(sh_info.mftSector, sh_info.mftref);
+	} else {
+	  // 引数が指定されればそのディレクトリを見る
+	  ntfs_fls(sh_info.mftSector, atoi(argv[1], 16));
+	}
       }
     }
     // icat - ファイル内容取得
@@ -79,10 +85,38 @@ void k_shell(void)
       if (sh_info.mftSector == 0) {
 	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
       } else {
-	ntfs_cd(sh_info.mftSector, atoi(argv[1], 16));
-	// [TODO] 未実装
+	u_int nextref;
+	nextref = ntfs_cd(sh_info.mftSector, atoi(argv[1], 16));
+	if (nextref != ERROR) {
+	  sh_info.mftref = nextref;
+	}
       }
     }
+    // debug - 情報を表示
+    if (strncmp(argv[0], "debug", 6) == 0) {
+      fb_printf("ntfs_info.bytesPerSector = 0x%x\n", ntfs_info.bytesPerSector);
+      fb_printf("ntfs_info.sectorsPerCluster = 0x%x\n", ntfs_info.sectorsPerCluster);
+      fb_printf("sh_info.mftSector = 0x%x\n", sh_info.mftSector);
+      fb_printf("sh_info.mftref    = 0x%x\n", sh_info.mftref);
+    }
+    // set - 変数を変更
+    if (strncmp(argv[0], "set", 4) == 0) {
+      if (argc == 3) {
+	sh_setvar(argv[1], argv[2]);
+      } else {
+	fb_debug("Usage: set [variable] [data]\n", ER_INFO);
+      }
+    }
+  }
+}
 
+/*
+ * 変数をセット
+ */
+void sh_setvar(char* vname, char* data)
+{
+  if (strncmp(vname, "mftSector", 10) == 0) {
+    sh_info.mftSector = atoi(data, 16);
+    fb_printf("sh_info.mftSector <-- 0x%x\n", atoi(data, 16));
   }
 }

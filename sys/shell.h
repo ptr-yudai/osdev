@@ -18,7 +18,7 @@ typedef struct {
 
 /*----- 関数定義 -----*/
 void k_shell(void);
-
+void sh_setvar(char* vname, char* data);
 
 /*----- 変数定義 -----*/
 SHELL_INFO sh_info;

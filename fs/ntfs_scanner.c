@@ -42,20 +42,41 @@ void ntfs_icat(u_int mftSector, u_int64 mftref)
  * @param mftSector $MFTの開始セクタ番号
  * @param mftref    MFT Reference Number (ID)
  */
-void ntfs_cd(u_int mftSector, u_int mftref)
+u_int ntfs_cd(u_int mftSector, u_int mftref)
 {
   NTFS_MFT *mft;
-
+  NTFS_ATTR_HEADER_R *mft_filename;
+  NTFS_ENTRY_FILENAME* attr_filename;
+  u_int nextref = ERROR;
+  
   // レコードを取得
   mft = ntfs_getrecord(mftSector, mftref);
   if (mft == NULL) {
     scr_switch(1);
     fb_debug("Specified file or directory not found.\n", ER_CATION);
-    return;
+    goto cd_return;
   }
 
-  // [TODO] ディレクトリであるかを判定
-  mftref = mftref;
+  // FILENAMEエントリを取得
+  mft_filename = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(mft, NTFS_MFT_ATTRIBUTE_FILENAME);
+  if (mft_filename == NULL) {
+    fb_debug("Filename attribute not found.\n", ER_CATION);
+    goto cd_return;
+  }
+  attr_filename = (NTFS_ENTRY_FILENAME*)((char*)mft_filename + mft_filename->contentOffset);
+  
+  // ディレクトリかを判別
+  if ((attr_filename->flags & NTFS_MFT_ENTRY_FLAGS_DIRECTORY) == 0) {
+    fb_debug("Selected file is not a directory.\n", ER_CATION);
+    goto cd_return;
+  }
+
+  nextref = mftref;
+
+  // 不要な領域を解放
+ cd_return:
+  free(mft, ntfs_info.sectorsPerRecord);
+  return nextref;
 }
 
 /*
@@ -139,7 +160,7 @@ NTFS_MFT* ntfs_getrecord(u_int mftSector, u_int mftref)
  *
  * @param mftSector $MFTの開始セクタ番号
  */
-void ntfs_fls(u_int mftSector)
+void ntfs_fls(u_int mftSector, u_int mftref)
 {
   char* filename = (char*)malloc(1);     // ファイル名
   NTFS_MFT              *mft;            // MFTレコード
@@ -152,9 +173,7 @@ void ntfs_fls(u_int mftSector)
   NTFS_ENTRY_FILENAME   *rec_filename;   // INDEXレコードのFILENAME
 
   // .(dot)のレコードを取得
-  u_int rootSector = mftSector
-    + ntfs_info.sectorsPerRecord * NTFS_MFT_INODE_ROOTDIR;
-  mft = ntfs_mft(rootSector);
+  mft = ntfs_getrecord(mftSector, mftref);
   if (!((mft->signature[0] == 'F') &
 	(mft->signature[1] == 'I') &
 	(mft->signature[2] == 'L') &
@@ -234,6 +253,8 @@ u_int ntfs_mmls(void)
   NTFS_BS* bootsector;
   int num = -1, i;
   pTable ptList[4];
+  u_int mftCluster;
+
   // MBRを割り当てる
   mbr = mbr_load();
   ptList[0] = mbr->pTable1;
@@ -249,8 +270,12 @@ u_int ntfs_mmls(void)
   // パーティションテーブル一覧
   for(i = 0; i < 4; i++) {
     fb_printf("# %d   # ", i + 1); fb_printx(ptList[i].lbaFirst);
-    fb_print(" # "); fb_printx(ptList[i].lbaCount); fb_print(" # ");
-    if (ptList[i].bootflag != 0x80) { fb_print("<-- Not in use or broken\n"); }
+    fb_print(" # "); fb_printx(ptList[i].lbaCount);
+    if (ptList[i].bootflag == 0x80) {
+      fb_print(" # \n");
+    } else {
+      fb_print(" # <-- Not in use or broken\n");
+    }
   }
   
   // パーティション番号を尋ねる
@@ -279,9 +304,10 @@ u_int ntfs_mmls(void)
     free(mbr, 1);
     return 0;
   }
+  mftCluster = bootsector->mftCluster;
   // 不要な領域の解放
   free(mbr, 1);
   free(bootsector, 1);
   // 終了
-  return bootsector->mftCluster * ntfs_info.sectorsPerCluster;
+  return mftCluster * ntfs_info.sectorsPerCluster;
 }

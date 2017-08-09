@@ -237,8 +237,8 @@ typedef struct {
 
 // 共用情報
 typedef struct {
-  // パーティションテーブル
-  u_short lbaFirst[4];
+  // 使用中のパーティションテーブル
+  u_short lbaFirst;
   // サイズ情報
   u_short bytesPerSector;
   u_char  sectorsPerCluster;
