@@ -230,8 +230,27 @@ void ntfs_fls(u_int mftSector, u_int mftref)
     free(rec_index, runlist->length);// [TODO] 正しくfree
     free(mft_iallc, 1);
   } else {
-    // [TODO]実装
-    fb_debug("INDEX is resident! Implement it!\n", ER_FATAL);
+    //// INDEX_ROOTを調べる
+    // レコードの終端まで調べる
+    while((inode->flags & NTFS_MFT_INODE_FLAGS_TERMINATOR) == 0) {
+      // ファイル情報を取得
+      rec_filename = (NTFS_ENTRY_FILENAME*)((char*)inode + 0x10);
+      memcpy(filename,
+	     (void*)((char*)rec_filename + sizeof(NTFS_ENTRY_FILENAME)),
+	     rec_filename->nameLength * 2);
+      unicode2ascii(filename, rec_filename->nameLength);
+      // ファイル種別
+      if (rec_filename->flags & NTFS_MFT_ENTRY_FLAGS_DIRECTORY) {
+	fb_print("[DIR]  ID:");
+      } else {
+	fb_print("[FILE] ID:");
+      }
+      fb_printx(inode->mftref & (u_int)0x00FFFFFFffffffff);
+      fb_printf("  %s\n", filename);
+      // 次のinodeへ
+      inode = (NTFS_INODE_I30_HEADER*)((char*)inode + inode->length);
+    }
+
   }
 
   // 不要な領域を解放
