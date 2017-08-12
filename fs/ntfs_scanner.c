@@ -10,6 +10,10 @@ void ntfs_icat(u_int mftSector, u_int64 mftref)
 {
   char* filename = (char*)malloc(1);     // ファイル名
   NTFS_MFT              *tmft;           // リスト中のレコード
+  NTFS_ATTR_HEADER_R    *mft_data;       // DATA属性のヘッダ
+  NTFS_ENTRY_DATA       *attr_data;      // DATAエントリ
+  NTFS_RUNLIST          *runlist;        // データのrunlist
+  char                  *data;           // データ実体
 
   // 参照番号に一致したMFTを取得
   tmft = ntfs_getrecord(mftSector, mftref);
@@ -19,16 +23,23 @@ void ntfs_icat(u_int mftSector, u_int64 mftref)
     goto icat_return;
   }
 
-  // [DEBUG] 仮にFILENAMEを取得してみる
-  NTFS_ATTR_HEADER_R* mft_filename;
-  NTFS_ENTRY_FILENAME* attr_filename;
-  mft_filename = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_FILENAME);
-  attr_filename = (NTFS_ENTRY_FILENAME*)((char*)mft_filename + mft_filename->contentOffset);
-  memcpy(filename,
-	 (void*)((char*)attr_filename + sizeof(NTFS_ENTRY_FILENAME)),
-	 attr_filename->nameLength * 2);
-  unicode2ascii(filename, attr_filename->nameLength);
-  fb_printf("FOUND: %s\n", filename);
+  // [DEBUG] DATA属性を取得
+  mft_data = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_DATA);
+  // Resident
+  if (mft_data->formCode == NTFS_MFT_ATTRIBUTE_RESIDENT) {
+    attr_data = (NTFS_ENTRY_DATA*)((char*)mft_data + mft_data->contentOffset);
+    data = ((char*)mft_data + attr_data->contentOffset);
+    fb_printb(data, 64);
+    fb_print("\n");
+  } else {
+    runlist = ntfs_parse_runlist((NTFS_ATTR_HEADER_NR*)mft_data);
+    // [TODO] 全部取得すること
+    data = (char*)ntfs_find_data(runlist, 0);
+    fb_printf("%s\n", data);
+    //fb_printb(data, 64);
+    //fb_print("\n");
+    free(runlist, 1);
+  }
   
   // 不要な領域を解放
  icat_return:
@@ -87,6 +98,7 @@ u_int ntfs_cd(u_int mftSector, u_int mftref)
  */
 NTFS_MFT* ntfs_getrecord(u_int mftSector, u_int mftref)
 {
+  int i;
   NTFS_MFT              *mft;            // $MFTレコード
   NTFS_ATTR_HEADER_NR   *mft_data;       // $MFTのDATA属性
   NTFS_RUNLIST          *runlist = NULL; // datarun
@@ -117,37 +129,63 @@ NTFS_MFT* ntfs_getrecord(u_int mftSector, u_int mftref)
     fb_debug("Invalid datarun!\n", ER_WARNING);
     goto getref_return;
   }
-  // 0番目のrunlistを取得
-  // [TODO!] 全部のdatarunを調べること
-  mft_list = ntfs_find_data(runlist, 0);
 
-  // 対象のIDに到達するまで調べる
-  while(1) {
-    // 対象のレコードを取得する
-    tmft = mft_list;
-    // [TODO] datarunのlengthまでを調べるのが正攻法
-    if (!((tmft->signature[0] == 'F') &
-	  (tmft->signature[1] == 'I') &
-	  (tmft->signature[2] == 'L') &
-	  (tmft->signature[3] == 'E'))) {
-      // [TODO] 次のdatarunへ移行
-      tmft = NULL;
-      goto getref_return;
-    }
-    
-    // IDをチェック
-    // [TODO] このチェック方法は怪しい？
-    if (tmft->MFTRecNumber == (u_int)mftref) {
-      tmft = (NTFS_MFT*)malloc(ntfs_info.sectorsPerRecord);
-      memcpy(tmft, mft_list, ntfs_info.sectorsPerRecord * ntfs_info.bytesPerSector);
+  // runlistを探索
+  for(i = 0; ; i++) {
+    NTFS_RUNLIST *trun;
+    trun = ntfs_extract_runlist(runlist, i);
+    // RUNLISTからMFTに到達する
+    mft_list = ntfs_find_data(runlist, i);
+    if (mft_list == NULL) {
       break;
     }
-    
-    mft_list += ntfs_info.bytesPerSector * ntfs_info.sectorsPerRecord;
-  }
 
-  free(mft_list, runlist->length);
-  // [TODO] loop
+    // 対象のIDに到達するまで調べる
+    // [TODO] 無限ループの可能性あり！
+    while(1) {
+      // 対象のレコードを取得する
+      tmft = mft_list;
+      // [TODO] datarunのlengthまでを調べるのが正攻法
+      /*
+      if (!((tmft->signature[0] == 'F') &
+	    (tmft->signature[1] == 'I') &
+	    (tmft->signature[2] == 'L') &
+	    (tmft->signature[3] == 'E'))) {
+	// 次のdatarunへ移行
+	tmft = NULL;
+	break;
+      }
+      */
+      
+      /*
+      char* filename = malloc(1);
+      NTFS_ENTRY_FILENAME* rec_filename;
+      NTFS_ATTR_HEADER_R *attr_filename = ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_FILENAME);
+      rec_filename = (NTFS_ENTRY_FILENAME*)((char*)attr_filename + attr_filename->contentOffset);
+      memcpy(filename,
+	     (void*)((char*)rec_filename + sizeof(NTFS_ENTRY_FILENAME)),
+	     rec_filename->nameLength * 2);
+      unicode2ascii(filename, rec_filename->nameLength);
+      fb_printf("%s; ", filename);
+      free(filename, 1);
+      */
+
+      // IDをチェック
+      // [TODO] このチェック方法は怪しい？
+      if (tmft->MFTRecNumber == (u_int)mftref) {
+	tmft = (NTFS_MFT*)malloc(ntfs_info.sectorsPerRecord);
+	memcpy(tmft, mft_list, ntfs_info.sectorsPerRecord * ntfs_info.bytesPerSector);
+	break;
+      }
+      
+      mft_list += ntfs_info.bytesPerSector * ntfs_info.sectorsPerRecord;
+    }
+
+    free(mft_list, trun->length);
+    if (tmft->MFTRecNumber == (u_int)mftref) {
+      break;
+    }
+  }
 
  getref_return:
   free(runlist, 1);
@@ -308,13 +346,13 @@ u_int ntfs_mmls(void)
     /*
     // 破損を通知
     if (ptList[num].bootflag != 0x80) {
-      char c;
-      fb_print("The partition is not used or corrupted.\n"
-	       "Are you sure you want to analyse this one? [Y/n] ");
-      c = kb_getc();
-      if (c != 'Y' && c != 'y') {
-	num = -1;
-      }
+    char c;
+    fb_print("The partition is not used or corrupted.\n"
+    "Are you sure you want to analyse this one? [Y/n] ");
+    c = kb_getc();
+    if (c != 'Y' && c != 'y') {
+    num = -1;
+    }
     }
     */
   }

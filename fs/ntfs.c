@@ -51,6 +51,10 @@ NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num)
       ntfs_info.sectorsPerRecord++;
     }
   }
+  
+  fb_print("----- Basic Information -----\n");
+  fb_printf("byte/sec : %x?\n", ntfs_info.bytesPerSector);
+  fb_printf("sec/clus : %x?\n", ntfs_info.sectorsPerCluster);
 
   return bootsector;
 }
@@ -202,6 +206,36 @@ void *ntfs_find_data(NTFS_RUNLIST *runlist, u_int n)
 {
   u_int i;
   void *index;
+  s_int64 offset = runlist->offset;
+
+  // Datarunをずらす
+  for(i = 0; i < n; i++) {
+    runlist = (NTFS_RUNLIST*)((char*)runlist + sizeof(NTFS_RUNLIST));
+    offset += runlist->offset;
+  }
+  if (runlist->offset == 0 || runlist->length == 0) {
+    return NULL;
+  }
+
+  // INDEXレコードを取得
+  fb_printf("size: %x\n", runlist->length);
+  index = (void*)malloc(runlist->length);
+  ata_read_ntfs((char*)index,
+		offset * ntfs_info.sectorsPerCluster,
+		runlist->length * ntfs_info.sectorsPerCluster);
+  //fb_printf("offset: %x, %x\n", ntfs_info.sectorsPerCluster, offset);
+  return index;
+}
+
+/*
+ * Datarunのn番目を取得する
+ *
+ * @param runlist ntfs_parse_runlistで取得したDatarun
+ * @param n       取得したいINDEXレコードの番号(Datarunの何番目か)
+ */
+NTFS_RUNLIST *ntfs_extract_runlist(NTFS_RUNLIST *runlist, u_int n)
+{
+  u_int i;
   // Datarunをずらす
   for(i = 0; i < n; i++) {
     runlist = (NTFS_RUNLIST*)((char*)runlist + sizeof(NTFS_RUNLIST));
@@ -209,13 +243,7 @@ void *ntfs_find_data(NTFS_RUNLIST *runlist, u_int n)
   if (runlist->offset == 0 || runlist->length == 0) {
     return NULL;
   }
-  // INDEXレコードを取得
-  index = (void*)malloc(runlist->length);
-  ata_read_ntfs((char*)index,
-		runlist->offset * ntfs_info.sectorsPerCluster,
-		runlist->length * ntfs_info.sectorsPerCluster);
-  //fb_printf("0x%x\n", runlist->offset * ntfs_info.sectorsPerCluster);
-  return index;
+  return runlist;
 }
 
 /*

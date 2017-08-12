@@ -208,6 +208,12 @@ typedef struct {
   u_char  nameLength;    // ファイル名の長さ
   u_char  nameType;      // ファイル名の種別(NTFS_MFT_ENTRY_NAMETYPE_*)
 } __attribute__((__packed__)) NTFS_ENTRY_FILENAME;
+// DATA
+typedef struct {
+  u_int   contentLength;
+  u_short contentOffset;
+  u_short padding;
+} __attribute__((__packed__)) NTFS_ENTRY_DATA;
 // INDEX_ROOT
 typedef struct {
   u_int  attributeType;
@@ -254,6 +260,7 @@ NTFS_MFT* ntfs_mft(u_int mftCluster);
 void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID);
 NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry);
 void* ntfs_find_data(NTFS_RUNLIST *runlist, u_int n);
+NTFS_RUNLIST* ntfs_extract_runlist(NTFS_RUNLIST *runlist, u_int n);
 void ata_read_ntfs(char *buf, u_int lba, u_int n);
 
 /*----- 変数定義 -----*/
