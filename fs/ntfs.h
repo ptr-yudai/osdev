@@ -7,6 +7,9 @@
 #include "../hal/ide.h"
 #include "mbr.h"
 
+// [仮]
+#include "../sys/screen.h"
+
 /*----- 定数定義 -----*/
 // FILE RecordのFlags
 #define NTFS_FILE_FLAG_FILE_IN_USE  0x01
@@ -257,7 +260,7 @@ typedef struct {
 /*----- 関数定義 -----*/
 NTFS_BS* ntfs_bootsector(MBR* mbr, u_int num);
 NTFS_MFT* ntfs_mft(u_int mftCluster);
-void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID);
+void* ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID, u_int id);
 NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry);
 void* ntfs_find_data(NTFS_RUNLIST *runlist, u_int n);
 NTFS_RUNLIST* ntfs_extract_runlist(NTFS_RUNLIST *runlist, u_int n);

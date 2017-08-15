@@ -99,6 +99,19 @@ void irq_keyboard(void)
 	case KEY_F4: // 仮想画面4
 	  scr_switch(3);
 	  break;
+
+	case KEY_N: // 履歴を下に辿る
+	  if (kb_info.flg_ctrl) {
+	    scr_move_cline(1);
+	    kb_info.lastkey = 0;
+	  }
+	  break;
+	case KEY_P:   // 履歴を上に辿る
+	  if (kb_info.flg_ctrl) {
+	    scr_move_cline(-1);
+	    kb_info.lastkey = 0;
+	  }
+	  break;
 	}
       }
     }

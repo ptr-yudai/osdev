@@ -65,10 +65,14 @@ void k_shell(void)
       } else {
 	if (argc == 1) {
 	  // カレントディレクトリを参照
-	  ntfs_fls(sh_info.mftSector, sh_info.mftref);
-	} else {
+	  ntfs_ls(sh_info.mftSector, sh_info.mftref);
+	} else if (argc == 2) {
 	  // 引数が指定されればそのディレクトリを見る
-	  ntfs_fls(sh_info.mftSector, atoi(argv[1], 16));
+	  ntfs_ls(sh_info.mftSector, atoi(argv[1], 16));
+	} else if (argc == 3) {
+	  if (strncmp(argv[1], "-f", 3) == 0) {
+	    ntfs_fls(sh_info.mftSector, atoi(argv[2], 16));
+	  }
 	}
       }
     }

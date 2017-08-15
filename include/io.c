@@ -76,6 +76,8 @@ void kb_getline(char* str)
 /*
  * 数字を入力する
  *
+
+
  * @param num 数字を格納するポインタ
  * @return 正しい入力なら1
  */
@@ -125,6 +127,9 @@ u_char kb_getnumber(int *num)
 void fb_putc(u_char c)
 {
   u_int frac;
+  VIRTUAL_VGA *vvga;
+  vvga = &scrmgr.vga[scrmgr.focus];
+
   // 改行かどうか
   if (c == '\x0a') {
     // 改行する
@@ -137,6 +142,12 @@ void fb_putc(u_char c)
     memcpy((void*)(scr_currentfb() + fb_position * 2), &fb_vga, 2);
     // カーソルを進める
     fb_position++;
+  }
+
+  // カーソルが画面外ならスクロール
+  if (fb_position > scrmgr.scrsize / 2) {
+    vvga->start_line++;
+    //scr_move_cline(1);
   }
   fb_redraw_cursor();
 }
@@ -302,7 +313,9 @@ void fb_clrscr(void)
   int i;
   // 80列, 25行を削除
   fb_move_cursor(0, 0);
-  for(i = 0; i < 2000; i++) fb_putc(' ');
+  for(i = 0; i < VGA_WIDTH * VGA_HEIGHT * SCR_ALLOCATED_SCR; i++) {
+    fb_putc(' ');
+  }
   // メニューを描画
   scr_draw_menu();
   fb_move_cursor(1, 0);

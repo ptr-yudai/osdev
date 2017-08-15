@@ -9,6 +9,9 @@
 /*----- 定数定義 -----*/
 // 最大画面数
 #define SCR_VIRTUAL_MAX 4
+// 
+#define SCR_ALLOCATED_SCR  2
+#define SCR_ALLOCATED_LINE ((SCR_ALLOCATED_SCR * MEMORY_BLOCK_SIZE) / (80 * 2))
 // 画面の役割
 #define SCR_SYSTEM_MSG  0  // OSレベルのデバッグメッセージ
 #define SCR_USER_ERROR  1  // ユーザーエラー
@@ -19,6 +22,10 @@
 typedef struct {
   u_int fb_position;
   void* p_framebuffer; // 仮想画面へのポインタ
+  void* p_current_fb;  // 現在見える仮想画面へのポインタ
+  u_short current_line;  // 現在の行
+  u_short start_line;    // 開始行（それ以上遡れない）
+  u_short end_line;      // 終了行（それ以上下れない）
 } VIRTUAL_VGA;
 typedef struct /*__attribute__((packed))*/ {
   VIRTUAL_VGA vga[SCR_VIRTUAL_MAX]; // 仮想画面へのポインタ
@@ -34,6 +41,7 @@ void screen_init(void);
 void scr_switch(u_char n);
 void scr_draw_menu(void);
 void scr_redraw(void);
+void scr_move_cline(short line);
 void* scr_currentfb(void);
 u_char scr_currentscr(void);
 

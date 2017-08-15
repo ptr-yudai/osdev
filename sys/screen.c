@@ -3,6 +3,7 @@
  */
 #include "screen.h"
 #include "../include/util.h"
+#include "../include/time.h"
 
 /*
  * 画面初期化
@@ -14,8 +15,12 @@ void screen_init(void)
   
   // 仮想画面のメモリ確保
   for(i = 0; i < SCR_VIRTUAL_MAX; i++) {
-    scrmgr.vga[i].p_framebuffer = malloc(4);
+    scrmgr.vga[i].p_framebuffer = malloc(SCR_ALLOCATED_SCR);
     scrmgr.vga[i].fb_position = 0;
+    scrmgr.vga[i].p_current_fb = scrmgr.vga[i].p_framebuffer;
+    scrmgr.vga[i].current_line = 0;
+    scrmgr.vga[i].start_line = 0;
+    scrmgr.vga[i].end_line = 0;
   }
   scrmgr.focus = 0;
 
@@ -64,9 +69,12 @@ void scr_draw_menu(void)
 {
   u_int i;
   u_int bkup_fb_position = fb_position;
+
   fb_setpos(0, 0);
-  fb_setcolor(VGA_COLOR_DARK_GREY, VGA_COLOR_BROWN);
+  fb_setcolor(VGA_COLOR_RED, VGA_COLOR_BROWN);
   for(i = 0; i < VGA_WIDTH; i++) fb_putc(' ');
+  fb_setpos(0, 0);
+  fb_print("F1:DEBUG  F2:SHELL  F3:PROGRAM  F4:TEMP");
   fb_position = bkup_fb_position;
   fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
 }
@@ -76,32 +84,41 @@ void scr_draw_menu(void)
  */
 void scr_redraw(void)
 {
-  u_char line[VGA_WIDTH * 2];
-  VIRTUAL_VGA vvga;
-  vvga = scrmgr.vga[scrmgr.focus];
-  // スクロール処理
-  if (fb_position > scrmgr.scrsize / 2) {
-    // [TODO] ちゃんとスクロールすること
-    memcpy((void*)line,
-	   (void*)(scr_currentfb() + scrmgr.scrsize - VGA_WIDTH * 2),
-	   VGA_WIDTH * 2);
-    // (仮)画面を消すだけ
-    fb_setpos(0, 0);
-    fb_setcolor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
-    fb_clrscr();
-    // 最後の一行は残す
-    memcpy((void*)(scr_currentfb() + VGA_WIDTH * 2),
-	   (void*)line,
-	   VGA_WIDTH * 2);
-    // メニューを表示
-    scr_draw_menu();
-    fb_move_cursor(2, 0);
-  }
+  VIRTUAL_VGA *vvga;
+  vvga = &scrmgr.vga[scrmgr.focus];
+
   // 画面を入れ替え
   memcpy((void*)VGA_FRAMEBUFFER,
-	 vvga.p_framebuffer,
+	 vvga->p_current_fb,
 	 VGA_WIDTH * VGA_HEIGHT * 2);
   scr_switch(scrmgr.focus);
+  fb_redraw_cursor();
+}
+
+/*
+ * 現在表示する行を移動する
+ *
+ * @param line 移動する行（相対値）
+ */
+void scr_move_cline(short line)
+{
+  VIRTUAL_VGA *vvga;
+  vvga = &scrmgr.vga[scrmgr.focus];
+
+  // 履歴範囲外かをチェック
+  if (vvga->current_line + line > vvga->start_line) return;
+  if (vvga->current_line + line < vvga->end_line) return;
+  
+  // 移動
+  vvga->p_current_fb = (void*)((char*)vvga->p_current_fb
+			       + line * VGA_WIDTH * 2);
+  vvga->current_line += line;
+  
+  vvga->fb_position -= line * VGA_WIDTH;
+  fb_position = vvga->fb_position;
+  
+  //scr_draw_menu();
+  fb_redraw_cursor();
 }
 
 /*
@@ -111,7 +128,7 @@ void scr_redraw(void)
  */
 void* scr_currentfb(void)
 {
-  return scrmgr.vga[scrmgr.focus].p_framebuffer;
+  return scrmgr.vga[scrmgr.focus].p_current_fb;
 }
 
 /*

@@ -88,11 +88,13 @@ NTFS_MFT* ntfs_mft(u_int mftSector)
  *
  * @param mftHeader MFT領域の先頭へのポインタ
  * @param typeID    探索する属性
+ * @param id        取得する番号
  */
-void *ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID)
+void *ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID, u_int id)
 {
   void* ptr = (void*)((u_int)mftHeader + mftHeader->attribOffset);
   u_int mftSize = ntfs_info.bytesPerRecord;
+  u_int i = 0;
 
   while(1) {
     // 範囲外
@@ -111,7 +113,8 @@ void *ntfs_find_attribute(NTFS_MFT* mftHeader, u_short typeID)
     // 属性を発見
     if (header->typeID == typeID
 	&& ptr + header->length <= (void*)((u_int)mftHeader + mftSize)) {
-      return ptr;
+      if (i == id) return ptr;
+      i++;
     }
     // 次のエントリへ
     ptr += header->length;
@@ -138,6 +141,8 @@ NTFS_RUNLIST* ntfs_parse_runlist(NTFS_ATTR_HEADER_NR *entry)
   char SIZE_RUNLIST = sizeof(NTFS_RUNLIST);
   
   long long int cp = 0LL;
+
+  memset(datarun, 0, MEMORY_BLOCK_SIZE);
   
   while((char)*(char*)ptr) {
     // 範囲外
@@ -207,23 +212,24 @@ void *ntfs_find_data(NTFS_RUNLIST *runlist, u_int n)
   u_int i;
   void *index;
   s_int64 offset = runlist->offset;
+  NTFS_RUNLIST *runlist_t = runlist;
 
   // Datarunをずらす
   for(i = 0; i < n; i++) {
-    runlist = (NTFS_RUNLIST*)((char*)runlist + sizeof(NTFS_RUNLIST));
-    offset += runlist->offset;
+    runlist_t = (NTFS_RUNLIST*)((char*)runlist_t + sizeof(NTFS_RUNLIST));
+    offset += runlist_t->offset;
   }
-  if (runlist->offset == 0 || runlist->length == 0) {
+  //runlist_t = (NTFS_RUNLIST*)((char*)runlist_t - sizeof(NTFS_RUNLIST));
+  if (runlist_t->offset == 0 || runlist_t->length == 0) {
     return NULL;
   }
 
   // INDEXレコードを取得
-  fb_printf("size: %x\n", runlist->length);
-  index = (void*)malloc(runlist->length);
+  //fb_printf("offset: %x, %x, %x\n", ntfs_info.sectorsPerCluster, offset);
+  index = (void*)malloc(runlist_t->length);
   ata_read_ntfs((char*)index,
 		offset * ntfs_info.sectorsPerCluster,
-		runlist->length * ntfs_info.sectorsPerCluster);
-  //fb_printf("offset: %x, %x\n", ntfs_info.sectorsPerCluster, offset);
+		runlist_t->length * ntfs_info.sectorsPerCluster);
   return index;
 }
 
