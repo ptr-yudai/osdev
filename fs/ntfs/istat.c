@@ -8,7 +8,7 @@
  */
 void ntfs_istat(u_int mftSector, u_int mftref)
 {
-  char* filename = (char*)malloc(1);     // ファイル名
+  char* filepath = (char*)malloc(1);     // ファイルパス
   NTFS_MFT              *tmft;           // MFTレコード
   NTFS_ATTR_HEADER_R    *mft_header;     // 属性のヘッダ
   NTFS_ENTRY_FILENAME   *entry_filename; // FILENAMEエントリ
@@ -32,51 +32,87 @@ void ntfs_istat(u_int mftSector, u_int mftref)
     goto istat_return;
   }
   
+  // MFTヘッダ
+  fb_print("----- MFT Entry Header -----\n");
+  fb_printf("Entry: 0x%x (%d)\n", tmft->MFTRecNumber, tmft->MFTRecNumber);
+  fb_printf("Sequence: %d\n", tmft->sequence);
+
   // FILENAME属性を取得
+  fb_print("----- FILENAME -----\n");
+  filepath = ntfs_getpath(mftSector, mftref);
+  fb_printf("Path: %s\n", filepath);
+
   mft_header = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_FILENAME, 0);
-  // Resident
-  if (mft_header->formCode == NTFS_MFT_ATTRIBUTE_RESIDENT) {
-    
-    // FILENAME属性を取得
-    entry_filename = (NTFS_ENTRY_FILENAME*)((char*)mft_header + mft_header->contentOffset);
-    memcpy(filename,
-	   (void*)((char*)entry_filename + sizeof(NTFS_ENTRY_FILENAME)),
-	   entry_filename->nameLength * 2);
-    unicode2ascii(filename, entry_filename->nameLength);
-    fb_printf("Filename: %s\n", filename);
-  } else {
-    fb_debug("Non-resident FILENAME is not supported!\n", ER_FATAL);
-  }
+  entry_filename = (NTFS_ENTRY_FILENAME*)((char*)mft_header + mft_header->contentOffset);
+    // 作成日時
+    unixtime = ts_file2unix(entry_filename->tsCreated);
+    ts_unix2date(unixtime, &datetime);
+    fb_printf(" Created : %d-%d-%d %d:%d:%d\n",
+	      datetime.year, datetime.month, datetime.day,
+	      datetime.hour, datetime.minute, datetime.second);
+    // 更新日時
+    unixtime = ts_file2unix(entry_filename->tsModified);
+    ts_unix2date(unixtime, &datetime);
+    fb_printf(" Modified: %d-%d-%d %d:%d:%d\n",
+	      datetime.year, datetime.month, datetime.day,
+	      datetime.hour, datetime.minute, datetime.second);
+    // アクセス日時
+    unixtime = ts_file2unix(entry_filename->tsAccessed);
+    ts_unix2date(unixtime, &datetime);
+    fb_printf(" Accessed: %d-%d-%d %d:%d:%d\n",
+	      datetime.year, datetime.month, datetime.day,
+	      datetime.hour, datetime.minute, datetime.second);  
   
   // STANDARD_INFORMATION属性を取得
+  fb_print("----- STANDARD_INFORMATION -----\n");
   mft_header = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_STDINFO, 0);
   // Resident
   if (mft_header->formCode == NTFS_MFT_ATTRIBUTE_RESIDENT) {
     entry_stdinfo = (NTFS_ENTRY_STDINFO*)((char*)mft_header + mft_header->contentOffset);
+    // フラグ
+    fb_print("FLAG: ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_READONLY)  fb_print("Read Only; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_HIDDEN)    fb_print("Hidden; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_SYSTEM)    fb_print("System; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_ARCHIVE)   fb_print("Archive; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_DEVICE)    fb_print("Device; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_NORMAL)    fb_print("Normal; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_TEMPORARY) fb_print("Temporary; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_SPARSE)    fb_print("Sparse; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_REPARSE)   fb_print("Reparse; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_COMPRESS)  fb_print("Compress; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_OFFLINE)   fb_print("Offline; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_NOINDEX)   fb_print("No Index; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_ENCRYPTED) fb_print("Encrypted; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_DIRECTORY) fb_print("Directory; ");
+    if (entry_stdinfo->flags & NTFS_MFT_ENTRY_FLAGS_INDEXVIEW) fb_print("Index View; ");
+    fb_print("\n");
+
     // 作成日時
     unixtime = ts_file2unix(entry_stdinfo->tsCreated);
     ts_unix2date(unixtime, &datetime);
-    fb_printf("Created : %d-%d-%d %d:%d:%d\n",
+    fb_printf(" Created : %d-%d-%d %d:%d:%d\n",
 	      datetime.year, datetime.month, datetime.day,
 	      datetime.hour, datetime.minute, datetime.second);
     // 更新日時
     unixtime = ts_file2unix(entry_stdinfo->tsModified);
     ts_unix2date(unixtime, &datetime);
-    fb_printf("Modified: %d-%d-%d %d:%d:%d\n",
+    fb_printf(" Modified: %d-%d-%d %d:%d:%d\n",
 	      datetime.year, datetime.month, datetime.day,
 	      datetime.hour, datetime.minute, datetime.second);
     // アクセス日時
     unixtime = ts_file2unix(entry_stdinfo->tsAccessed);
     ts_unix2date(unixtime, &datetime);
-    fb_printf("Accessed: %d-%d-%d %d:%d:%d\n",
+    fb_printf(" Accessed: %d-%d-%d %d:%d:%d\n",
 	      datetime.year, datetime.month, datetime.day,
 	      datetime.hour, datetime.minute, datetime.second);
   } else {
     fb_debug("Non-resident STANDARD_INFORMATION is not supported!\n", ER_FATAL);
   }
   
+
   // 不要な領域を解放
  istat_return:
   free(tmft, ntfs_info.sectorsPerRecord);
-  free(filename, 1);
+  free(filepath, 1);
 }

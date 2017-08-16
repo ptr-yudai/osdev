@@ -1,7 +1,7 @@
 INCLUDE_OBJECTS = include/util.o include/io.o include/time.o include/div64.o include/sound.o
 HAL_OBJECTS = hal/hal.o hal/idt.o hal/pic.o hal/pit.o hal/exception.o hal/irq.o hal/irq_bridge.o hal/key.o hal/mem.o hal/ide.o hal/vmem.o hal/pte.o hal/pde.o
 SYS_OBJECTS = sys/screen.o sys/shell.o
-FS_OBJECTS = fs/mbr.o fs/ntfs/ntfs.o fs/ntfs/ntfs_scanner.o fs/ntfs/mmls.o fs/ntfs/icat.o fs/ntfs/fls.o fs/ntfs/cd.o fs/ntfs/timeline.o fs/ntfs/istat.o
+FS_OBJECTS = fs/mbr.o fs/ntfs/ntfs.o fs/ntfs/ntfs_scanner.o fs/ntfs/mmls.o fs/ntfs/icat.o fs/ntfs/fls.o fs/ntfs/cd.o fs/ntfs/timeline.o fs/ntfs/istat.o fs/ntfs/parselog.o fs/ntfs/carving.o
 LOADER_OBJECTS = loader/loader.o loader/pmode.o loader/a20.o
 OBJECTS = $(LOADER_OBJECTS) $(HAL_OBJECTS) $(SYS_OBJECTS) $(FS_OBJECTS) $(INCLUDE_OBJECTS) kmain.o
 

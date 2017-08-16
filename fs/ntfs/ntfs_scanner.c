@@ -1,6 +1,91 @@
 #include "ntfs_scanner.h"
 
 /**
+ * ntfs_getpath - 指定ファイルまでのパスを取得する
+ *
+ * @param  mftSector $MFTの開始セクタ番号
+ * @param  mftref    MFT Reference Number (ID)
+ * @return ファイルの絶対パス
+ */
+char* ntfs_getpath(u_int mftSector, u_int mftref)
+{
+  int i;
+  char *filepath = (char*)malloc(1);     // 最終的なパス
+  char *filename = (char*)malloc(1);
+  NTFS_MFT              *tmft;           // MFTレコード
+  NTFS_ATTR_HEADER_R    *attr_filename;  // 属性のヘッダ
+  NTFS_ENTRY_FILENAME   *entry_filename; // FILENAMEエントリ
+  u_int filepath_len = 0;                // ファイルパス名の長さ
+  u_int nextref = mftref;                // 次に参照するmftref
+  u_int preref = -1;                     // 前に参照したmftref
+
+  memset(filepath, 0, MEMORY_BLOCK_SIZE);
+  memset(filename, 0, MEMORY_BLOCK_SIZE);
+
+  while(1) {
+    tmft = ntfs_getrecord(mftSector, nextref);
+    if ((tmft == NULL) ||
+	!((tmft->signature[0] == 'F') &
+	  (tmft->signature[1] == 'I') &
+	  (tmft->signature[2] == 'L') &
+	  (tmft->signature[3] == 'E'))) {
+      memcpy(filepath, "?Unknown?", 10);
+      goto getpath_return;
+      break;
+    }
+
+    // FILENAME属性を取得
+    for(i = 0; ; i++) {
+      attr_filename = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_FILENAME, i);
+      if (attr_filename == NULL) {
+	// 1つも見つからない場合は不明である
+	if (i == 0) {
+	  memcpy(filepath, "?Unknown?", 10);
+	  goto getpath_return;
+	}
+	// 見つからない場合は前のものを使う
+	attr_filename = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_FILENAME, i - 1);
+	break;
+      }
+      entry_filename = (NTFS_ENTRY_FILENAME*)((char*)attr_filename + attr_filename->contentOffset);
+      // DOS以外ならOK
+      if (entry_filename->nameType != NTFS_MFT_ENTRY_NAMETYPE_DOS) break;
+    }
+    // ファイル名を取得
+    memcpy(filename,
+	   (void*)((char*)entry_filename + sizeof(NTFS_ENTRY_FILENAME)),
+	   entry_filename->nameLength * 2);
+    unicode2ascii(filename, entry_filename->nameLength);
+    // ファイルパスに結合する
+    for(i = filepath_len; i >= 0; i--) {
+      filepath[i + entry_filename->nameLength + 1] = filepath[i];
+    }
+    for(i = 0; i < entry_filename->nameLength; i++) {
+      filepath[i + 1] = filename[i];
+    }
+    filepath[0] = '\\';
+    // 次に備える
+    filepath_len += entry_filename->nameLength + 1;
+    nextref = entry_filename->parentDir;
+    // $MFTなら終了
+    if (nextref == preref) break;
+    preref = nextref;
+    // 解放
+    free(tmft, ntfs_info.sectorsPerRecord);
+  }
+
+  filepath[0] = 'C';
+  filepath[1] = ':';
+
+  // 不要な領域を解放
+ getpath_return:
+  free(tmft, ntfs_info.sectorsPerRecord);
+  free(filename, 1);
+
+  return filepath;
+}
+
+/**
  * ntfs_getrecord - 指定ファイルのMFTレコードを取得する
  *
  * @param mftSector $MFTの開始セクタ番号
@@ -55,17 +140,6 @@ NTFS_MFT* ntfs_getrecord(u_int mftSector, u_int mftref)
     for(j = 0; j < 0xFFFF; j++) {
       // 対象のレコードを取得する
       tmft = mft_list;
-      /*
-      // [TODO] datarunのlengthまでを調べるのが正攻法
-      if (!((tmft->signature[0] == 'F') &
-	    (tmft->signature[1] == 'I') &
-	    (tmft->signature[2] == 'L') &
-	    (tmft->signature[3] == 'E'))) {
-	// 次のdatarunへ移行
-	tmft = NULL;
-	break;
-      }
-      */
       
       // IDをチェック
       // [TODO] このチェック方法は怪しい？

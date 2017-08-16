@@ -92,6 +92,14 @@ void k_shell(void)
 	ntfs_istat(sh_info.mftSector, atoi(argv[1], 16));
       }
     }
+    // parselog - $LogFileを調べる
+    if (strncmp(argv[0], "parselog", 9) == 0) {
+      if (sh_info.mftSector == 0) {
+	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
+      } else {
+	ntfs_parselog(sh_info.mftSector);
+      }
+    }
     // cd - ディレクトリを移動
     if (strncmp(argv[0], "cd", 3) == 0) {
       if (sh_info.mftSector == 0) {

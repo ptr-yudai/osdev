@@ -226,8 +226,6 @@ typedef struct {
   u_char padding[3];
   NTFS_INODE_HEADER inode;
 } __attribute__((__packed__)) NTFS_ENTRY_INDXROOT;
-// INDEX_ALLOCATION
-
 // Index Node Header
 typedef struct {
   u_int64 mftref;
@@ -235,6 +233,36 @@ typedef struct {
   u_short dataLength;
   u_char  flags;
 } __attribute__((__packed__)) NTFS_INODE_I30_HEADER;
+
+/* $LogFile */
+// LogFile
+typedef struct {
+  u_char signature[4];
+  u_short usaOffset;
+  u_short usaCount;
+  u_int64 chkDiskLSN;
+  u_int   sysPageSize;
+  u_int   logPageSize;
+  u_short restartOffset;
+  u_short minorVer;
+  u_short majorVer;
+  u_short padding;    // 仕様書に無いがデータに存在するので一応
+} __attribute__((__packed__)) NTFS_RESTART_PAGE_HEADER;
+//
+typedef struct {
+  u_int64 currentLSN;
+  u_short logClients;
+  u_short clientFreeList;
+  u_short clientInUseList;
+  u_short flags;
+  u_int   seqNumber;
+  u_short areaLength;
+  u_short clientArrayOffset;
+  u_int64 filesize;
+  u_int   lastLSNDataLength;
+  u_short recordLength;
+  u_short logPageDataOffset;
+} __attribute__((__packed__)) NTFS_RESTART_AREA;
 
 // runlist
 typedef struct {
