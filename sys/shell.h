@@ -3,7 +3,7 @@
 
 #include "../include/types.h"
 #include "../include/io.h"
-#include "../fs/ntfs_scanner.h"
+#include "../fs/ntfs/ntfs_scanner.h"
 
 /*----- 定数定義 -----*/
 #define SHELL_CMD_LENGTH  64

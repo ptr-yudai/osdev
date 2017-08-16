@@ -12,7 +12,7 @@
 //  キー入力関連
 //
 /*--------------------------------------------------*/
-/*
+/**
  * 1文字をキーボードから入力する
  *
  * @return 入力された文字コード
@@ -30,7 +30,7 @@ u_char kb_getc(void)
   return key;
 }
 
-/*
+/**
  * 改行までをキーボードから入力する
  *
  * @param *str 入力を格納するポインタ
@@ -71,13 +71,13 @@ void kb_getline(char* str)
       p_result++;
     }
   }
+  fb_chkscroll();
+  fb_redraw_cursor();
 }
 
-/*
+/**
  * 数字を入力する
  *
-
-
  * @param num 数字を格納するポインタ
  * @return 正しい入力なら1
  */
@@ -119,7 +119,7 @@ u_char kb_getnumber(int *num)
 //  画面出力関連
 //
 /*--------------------------------------------------*/
-/*
+/**
  * 1文字を特定のカーソルに書き込む
  * 
  * @param c  文字
@@ -127,8 +127,6 @@ u_char kb_getnumber(int *num)
 void fb_putc(u_char c)
 {
   u_int frac;
-  VIRTUAL_VGA *vvga;
-  vvga = &scrmgr.vga[scrmgr.focus];
 
   // 改行かどうか
   if (c == '\x0a') {
@@ -144,15 +142,11 @@ void fb_putc(u_char c)
     fb_position++;
   }
 
-  // カーソルが画面外ならスクロール
-  if (fb_position > scrmgr.scrsize / 2) {
-    vvga->start_line++;
-    //scr_move_cline(1);
-  }
+  fb_chkscroll();
   fb_redraw_cursor();
 }
 
-/*
+/**
  * 文字列をカーソルに書き込む
  *
  * @param str 書き込む文字列
@@ -165,7 +159,7 @@ void fb_print(const char* str)
   }
 }
 
-/*
+/**
  * エラーをカーソルに書き込む
  *
  * @param str 書き込むエラーメッセージ
@@ -199,7 +193,7 @@ void fb_debug(const char* str, char lev)
   scr_switch(scr);
 }
 
-/*
+/**
  * バイナリをカーソルに書き込む
  *
  * @param bin  書き込むバイナリ
@@ -227,7 +221,7 @@ void fb_printb(char* bin, u_int size)
   }
 }
 
-/*
+/**
  * 数字を16進数で表示する
  *
  * @param n 表示する数値
@@ -251,7 +245,7 @@ void fb_printx(u_int n)
   }
 }
 
-/*
+/**
  * フォーマット文字列を表示する
  */
 void fb_printf(char *format, ...)
@@ -305,7 +299,7 @@ void fb_printf(char *format, ...)
   va_end(argptr);
 }
 
-/*
+/**
  * 画面を現在の背景色で消去する
  */
 void fb_clrscr(void)
@@ -321,7 +315,7 @@ void fb_clrscr(void)
   fb_move_cursor(1, 0);
 }
 
-/*
+/**
  * 表示する色を設定する
  *
  * @param fg 文字色
@@ -333,7 +327,7 @@ void fb_setcolor(u_char fg, u_char bg)
   fb_vga.bg = bg & 0xF;
 }
 
-/*
+/**
  * 表示位置を変更する（カーソル位置は変わらない）
  *
  * @param row    行番号
@@ -345,7 +339,7 @@ u_int fb_setpos(u_int row, u_int column)
   return fb_position;
 }
 
-/*
+/**
  * カーソルを移動する（表示位置も変更）
  *
  * @param row    行番号
@@ -357,7 +351,7 @@ void fb_move_cursor(u_int row, u_int column)
   fb_redraw_cursor();
 }
 
-/*
+/**
  * カーソルを更新する
  */
 void fb_redraw_cursor(void)
@@ -367,4 +361,17 @@ void fb_redraw_cursor(void)
   outb(FB_DATA_PORT   , (fb_position >> 8) & 0x00FF );
   outb(FB_COMMAND_PORT, FB_LOW_BYTE_COMMAND );
   outb(FB_DATA_PORT   , fb_position & 0x00FF);
+}
+
+/**
+ * スクロールをチェックする
+ */
+void fb_chkscroll()
+{
+  // カーソルが画面外ならスクロール
+  VIRTUAL_VGA *vvga;
+  vvga = &scrmgr.vga[scrmgr.focus];
+  if (fb_position > scrmgr.scrsize / 2) {
+    vvga->start_line++;
+  }
 }

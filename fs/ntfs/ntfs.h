@@ -1,14 +1,14 @@
 #ifndef FS_NTFS_H
 #define FS_NTFS_H
 
-#include "../include/types.h"
-#include "../include/util.h"
-#include "../include/io.h"
-#include "../hal/ide.h"
-#include "mbr.h"
+#include "../../include/types.h"
+#include "../../include/util.h"
+#include "../../include/io.h"
+#include "../../hal/ide.h"
+#include "../mbr.h"
 
 // [仮]
-#include "../sys/screen.h"
+#include "../../sys/screen.h"
 
 /*----- 定数定義 -----*/
 // FILE RecordのFlags

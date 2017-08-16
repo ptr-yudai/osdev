@@ -225,7 +225,6 @@ void *ntfs_find_data(NTFS_RUNLIST *runlist, u_int n)
   }
 
   // INDEXレコードを取得
-  //fb_printf("offset: %x, %x, %x\n", ntfs_info.sectorsPerCluster, offset);
   index = (void*)malloc(runlist_t->length);
   ata_read_ntfs((char*)index,
 		offset * ntfs_info.sectorsPerCluster,

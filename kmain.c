@@ -6,7 +6,6 @@
 #include "./sys/screen.h"
 #include "./sys/shell.h"
 #include "./hal/hal.h"
-#include "./fs/ntfs_scanner.h"
 
 /*
  * カーネルメイン

@@ -25,7 +25,7 @@ void k_shell(void)
 
     // コマンド入力
     scr_switch(1);
-    fb_printf("[%d]# ", sh_info.mftref);
+    fb_printf("[0x%x]# ", sh_info.mftref);
     kb_getline(cmd);
 
     freechk_f = freechk_b;
@@ -82,6 +82,14 @@ void k_shell(void)
 	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
       } else {
 	ntfs_icat(sh_info.mftSector, atoi(argv[1], 16));
+      }
+    }
+    // istat - ファイル詳細取得
+    if (strncmp(argv[0], "istat", 5) == 0) {
+      if (sh_info.mftSector == 0) {
+	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
+      } else {
+	ntfs_istat(sh_info.mftSector, atoi(argv[1], 16));
       }
     }
     // cd - ディレクトリを移動
