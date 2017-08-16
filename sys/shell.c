@@ -100,6 +100,14 @@ void k_shell(void)
 	ntfs_parselog(sh_info.mftSector);
       }
     }
+    // timeline - タイムラインを作成する
+    if (strncmp(argv[0], "timeline", 9) == 0) {
+      if (sh_info.mftSector == 0) {
+	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
+      } else {
+	ntfs_timeline(sh_info.mftSector);
+      }
+    }
     // cd - ディレクトリを移動
     if (strncmp(argv[0], "cd", 3) == 0) {
       if (sh_info.mftSector == 0) {
@@ -118,6 +126,16 @@ void k_shell(void)
       fb_printf("ntfs_info.sectorsPerCluster = 0x%x\n", ntfs_info.sectorsPerCluster);
       fb_printf("sh_info.mftSector = 0x%x\n", sh_info.mftSector);
       fb_printf("sh_info.mftref    = 0x%x\n", sh_info.mftref);
+    }
+    // memread - メモリを表示
+    if (strncmp(argv[0], "memread", 8) == 0) {
+      if (argc != 3) {
+	fb_print("Usage: memread [address] [size]\n");
+      } else {
+	char* ptr = (char*)atoi(argv[1], 16);
+	u_int size = atoi(argv[2], 16);
+	fb_printb(ptr, size);
+      }
     }
     // set - 変数を変更
     if (strncmp(argv[0], "set", 4) == 0) {

@@ -10,9 +10,15 @@ void ntfs_timeline(u_int mftSector)
   int i, j;
   NTFS_MFT              *mft;            // $MFTレコード
   NTFS_ATTR_HEADER_NR   *mft_data;       // $MFTのDATA属性
+  NTFS_ATTR_HEADER_R    *mft_stdinfo;    // STANDARD_INFO属性
+  NTFS_ENTRY_STDINFO    *entry_stdinfo;  // STANDARD_INFOエントリ
   NTFS_RUNLIST          *runlist = NULL; // datarun
   void                  *mft_list;       // リストの先頭
   NTFS_MFT              *tmft = NULL;    // リスト中のレコード
+  u_int64 unixtime;
+  DATETIME datetime;
+  // [TODO] どれくらい確保すればよい？
+  //NTFS_TIMELINE *timeline = (NTFS_TIMELINE*)malloc(0x1000);
 
   // $MFTのレコードを取得
   mft = ntfs_mft(mftSector);
@@ -34,7 +40,6 @@ void ntfs_timeline(u_int mftSector)
   // datarunを取得
   runlist = ntfs_parse_runlist(mft_data);
   if (runlist == NULL) {
-    scr_switch(0);
     fb_debug("Invalid datarun!\n", ER_WARNING);
     goto timeline_return;
   }
@@ -45,24 +50,29 @@ void ntfs_timeline(u_int mftSector)
     trun = ntfs_extract_runlist(runlist, i);
     // RUNLISTからMFTに到達する
     mft_list = ntfs_find_data(runlist, i);
-    if (mft_list == NULL) {
-      break;
-    }
+    if (mft_list == NULL) break;
 
     // 対象のIDに到達するまで調べる
-    // [TODO] 無限ループの可能性あり！
     for(j = 0; j < 0xFFFF; j++) {
       // 対象のレコードを取得する
       tmft = mft_list;
-      tmft = tmft;
-      
-      // IDをチェック
-      // [TODO] ここでチェック
-      //
-      //
-      //
-      //
-      //
+      if (!((tmft->signature[0] == 'F') &
+	    (tmft->signature[1] == 'I') &
+	    (tmft->signature[2] == 'L') &
+	    (tmft->signature[3] == 'E'))) {
+	continue;
+      }
+	
+      // IDと時刻を保存
+      mft_stdinfo = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_STDINFO, 0);
+      entry_stdinfo = (NTFS_ENTRY_STDINFO*)((char*)mft_stdinfo + mft_stdinfo->contentOffset);
+      // 作成日時
+      // [TODO] 実際には作成日時
+      unixtime = ts_file2unix(entry_stdinfo->tsModified);
+      ts_unix2date(unixtime, &datetime);
+      fb_printf(" Created : %d-%d-%d %d:%d:%d\n",
+		datetime.year, datetime.month, datetime.day,
+		datetime.hour, datetime.minute, datetime.second);
       
       mft_list += ntfs_info.bytesPerSector * ntfs_info.sectorsPerRecord;
     }
@@ -71,6 +81,6 @@ void ntfs_timeline(u_int mftSector)
   }
 
  timeline_return:
-  free(runlist, 1);
   free(mft, ntfs_info.sectorsPerRecord);
+  //free(timeline, 0x1000);
 }
