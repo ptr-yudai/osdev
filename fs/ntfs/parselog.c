@@ -37,9 +37,10 @@ void ntfs_parselog(u_int mftSector)
   fb_print("\nSelect which clue to use in searching a file?\n"
 	   "1) Filename\n"
 	   "2) Filesize\n"
+	   "3) Signature\n"
 	   ">> ");
   func = -1;
-  while(0 < func || func < 3) {
+  while(0 < func || func < 4) {
     if (kb_getnumber(&func)) {
       break;
     } else {
@@ -54,6 +55,17 @@ void ntfs_parselog(u_int mftSector)
     kb_getline(b_clue);
     break;
   case NTFS_CARVING_FILESIZE:
+    b_clue[0] = 0x00;
+    fb_print("Which "
+	     "1) Larger than"
+	     "2) Smaller than"
+	     "3) Equal to\n");
+    while(b_clue[0] < 1 || b_clue[0] > 3) {
+      fb_print(">> ");
+      if (kb_getnumber(i_clue) == 0) {
+	fb_debug("Invalid option specified.\n", ER_CATION);
+      }
+    }
     i_clue = -1;
     while(i_clue > 0) {
       fb_print("Filesize: ");
@@ -61,6 +73,29 @@ void ntfs_parselog(u_int mftSector)
       fb_debug("Invalid data specified.\n", ER_CATION);
     }
     break;
+  case NTFS_CARVING_SIGNATURE:
+    fb_print("Type signature in hex bytes. (Type 'q' to finish)\n"
+	     ">> ");
+    char byte[3] = {0};
+    for(i = 0; ; i++) {
+      c = kb_getc();
+      if (c == 'q') break;
+      fb_putc(c);
+      
+      if (c == ' ') {
+	i--;
+	continue;
+      }
+      byte[i % 2] = c;
+      if (i % 2 == 1) {
+	b_clue[i / 2] = atoi(byte, 16);
+      }
+    }
+    i_clue = i / 2;
+    fb_print("\nSIGNATURE: ");
+    fb_printb(b_clue, i_clue);
+    break;
+
   default:
     fb_debug("How did you reach here!?\n", ER_WARNING);
     goto parselog_return;

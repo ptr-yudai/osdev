@@ -8,7 +8,7 @@
  */
 void ntfs_istat(u_int mftSector, u_int mftref)
 {
-  char* filepath = (char*)malloc(1);     // ファイルパス
+  char* filepath;                        // ファイルパス
   NTFS_MFT              *tmft;           // MFTレコード
   NTFS_ATTR_HEADER_R    *mft_header;     // 属性のヘッダ
   NTFS_ENTRY_FILENAME   *entry_filename; // FILENAMEエントリ

@@ -33,8 +33,8 @@ kernel.elf: link.ld $(OBJECTS)
 ## 実行する
 run:
 #	qemu-system-i386 -boot d -cdrom my_os.iso -m 32M -hda hdd/ntfs-img-kw-1.dd
-#	qemu-system-i386 -boot d -cdrom my_os.iso -m 32M -hda hdd/dfr-01-ntfs.dd
-	qemu-system-i386 -boot d -cdrom my_os.iso -m 32M -hda hdd/von.img
+#	qemu-system-i386 -boot d -cdrom my_os.iso -m 128M -hda hdd/dfr-01-ntfs.dd
+	qemu-system-i386 -boot d -cdrom my_os.iso -m 128M -hda hdd/von.img
 
 ## デバッグする
 debug:
@@ -49,6 +49,8 @@ clean:
 	rm -rf *.o *~
 	rm -rf ./include/*.o ./include/*~
 	rm -rf ./hal/*.o ./hal/*~
+	rm -rf ./sys/*.o ./sys/*~
+	rm -rf ./fs/*.o ./fs/*~ ./fs/ntfs/*.o ./fs/ntfs/*~
 	rm -rf ./loader/*.o ./loader/*~
 	rm -rf kernel.* my_os.iso objdump.txt
 	rm -rf ./iso/boot/kernel.elf

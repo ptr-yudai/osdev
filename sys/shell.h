@@ -6,6 +6,7 @@
 #include "../fs/ntfs/ntfs_scanner.h"
 
 /*----- 定数定義 -----*/
+#define FREE_CHECK_FUEL   64
 #define SHELL_CMD_LENGTH  64
 #define SHELL_ARGV_SIZE   8
 #define SHELL_ARGV_LENGTH 32

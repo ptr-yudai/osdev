@@ -24,12 +24,16 @@ char* ntfs_getpath(u_int mftSector, u_int mftref)
 
   while(1) {
     tmft = ntfs_getrecord(mftSector, nextref);
-    if ((tmft == NULL) ||
-	!((tmft->signature[0] == 'F') &
+    if (tmft == NULL) {
+      memcpy(filepath, "?OVERFLOW?", 11);
+      goto getpath_return;
+      break;
+    }
+    if (!((tmft->signature[0] == 'F') &
 	  (tmft->signature[1] == 'I') &
 	  (tmft->signature[2] == 'L') &
 	  (tmft->signature[3] == 'E'))) {
-      memcpy(filepath, "?Unknown?", 10);
+      memcpy(filepath, "?INVALID?", 10);
       goto getpath_return;
       break;
     }
@@ -40,7 +44,7 @@ char* ntfs_getpath(u_int mftSector, u_int mftref)
       if (attr_filename == NULL) {
 	// 1つも見つからない場合は不明である
 	if (i == 0) {
-	  memcpy(filepath, "?Unknown?", 10);
+	  memcpy(filepath, "?UNNAMED?", 10);
 	  goto getpath_return;
 	}
 	// 見つからない場合は前のものを使う

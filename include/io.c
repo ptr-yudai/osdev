@@ -246,6 +246,27 @@ void fb_printx(u_int n)
 }
 
 /**
+ * バイナリデータをダンプする
+ *
+ * @param bin  バイナリデータ
+ * @param size 表示サイズ
+ */
+void fb_hexdump(char *bin, u_int size)
+{
+  u_int i;
+  char digit[2];
+  fb_print("+0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F\n");
+  for(i = 0; i < size; ++i) {
+    itoa(bin[i] >> 4  , digit, 16);
+    fb_putc(digit[0]);
+    itoa(bin[i] & 0x0F, digit, 16);
+    fb_putc(digit[0]);
+    fb_putc(' ');
+    if ((i + 1) % 16 == 0) fb_print("\n");
+  }
+}
+
+/**
  * フォーマット文字列を表示する
  */
 void fb_printf(char *format, ...)

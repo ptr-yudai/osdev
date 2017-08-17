@@ -90,7 +90,7 @@ void scr_redraw(void)
   // 画面を入れ替え
   memcpy((void*)VGA_FRAMEBUFFER,
 	 vvga->p_current_fb,
-	 VGA_WIDTH * VGA_HEIGHT * 2);
+	 scrmgr.scrsize);
   scr_switch(scrmgr.focus);
   fb_redraw_cursor();
 }

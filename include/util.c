@@ -141,6 +141,7 @@ void itoa(int value, char *str, int base)
  *
  * @param str   文字列へのポインタ
  * @param base  基数
+ * @return 変換した数値
  */
 int atoi(char *str, int base)
 {

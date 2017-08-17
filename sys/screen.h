@@ -10,7 +10,7 @@
 // 最大画面数
 #define SCR_VIRTUAL_MAX 4
 // 
-#define SCR_ALLOCATED_SCR  2
+#define SCR_ALLOCATED_SCR  8
 #define SCR_ALLOCATED_LINE ((SCR_ALLOCATED_SCR * MEMORY_BLOCK_SIZE) / (80 * 2))
 // 画面の役割
 #define SCR_SYSTEM_MSG  0  // OSレベルのデバッグメッセージ

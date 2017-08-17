@@ -65,6 +65,7 @@ void fb_debug(const char* str, char lev);
 void fb_printb(char* bin, u_int size);
 void fb_printx(u_int n);
 void fb_printf(char *format, ...);
+void fb_hexdump(char *bin, u_int size);
 void fb_clrscr(void);
 void fb_setcolor(u_char fg, u_char bg);
 u_int fb_setpos(u_int row, u_int column);

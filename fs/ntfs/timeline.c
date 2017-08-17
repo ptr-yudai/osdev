@@ -15,10 +15,54 @@ void ntfs_timeline(u_int mftSector)
   NTFS_RUNLIST          *runlist = NULL; // datarun
   void                  *mft_list;       // リストの先頭
   NTFS_MFT              *tmft = NULL;    // リスト中のレコード
-  u_int64 unixtime;
-  DATETIME datetime;
+  u_int64 unixtime;                      // 作成日時（unixタイム）
+  DATETIME datetime;                     // 作成日時
+  char* filepath;                        // ファイルパス
+  NTFS_TIMELINE st_link, *current_link, *seek;
   // [TODO] どれくらい確保すればよい？
-  //NTFS_TIMELINE *timeline = (NTFS_TIMELINE*)malloc(0x1000);
+  NTFS_TIMELINE *timeline;
+  int memsize;
+  char c;
+  char enable_filepath = 1;
+
+  // 各種設定は尋ねる
+  fb_print("A large region of memory is required to run timeline.\n"
+	   "Would you like to configure timeline? [Y/n]");
+  c = kb_getc();
+  if (c == 'Y' || c == 'y') { // メモリ設定
+    // ファイルパス探索機能
+    fb_print("\nExploring filepath requires a large memory.\n"
+	     "If it is disabled, only MFT reference number is shown.\n"
+	     "Would you like to enable filepath exploring? [Y/n]");
+    c = kb_getc();
+    if (c != 'Y' && c != 'y') {
+      enable_filepath = 0;
+    }
+    // メモリサイズ
+    fb_print("\nConfigure the memory block size to use in timeline.\n"
+	     "Set a large number when the disk has lots of files.\n"
+	     "Default value: 256\n"
+	     ">> ");
+    memsize = 0;
+    while(memsize <= 0) {
+      if (kb_getnumber(&memsize)) {
+	break;
+      } else {
+	memsize = 0;
+      }
+      fb_debug("Invalid memory size.\n", ER_CATION);
+    }
+    // [TODO] どの時刻でソートするかを決める
+  } else {
+    memsize = 0x100;
+  }
+
+  timeline = (NTFS_TIMELINE*)malloc(0x100);
+  if (timeline == NULL) {
+    fb_debug("This device has no enough memory to run timeline.\n", ER_FATAL);
+    return;
+  }
+  memset(timeline, 0, 0x100 * MEMORY_BLOCK_SIZE);
 
   // $MFTのレコードを取得
   mft = ntfs_mft(mftSector);
@@ -45,6 +89,8 @@ void ntfs_timeline(u_int mftSector)
   }
 
   // runlistを探索
+  st_link.flink = timeline;
+  current_link = timeline;
   for(i = 0; ; i++) {
     NTFS_RUNLIST *trun;
     trun = ntfs_extract_runlist(runlist, i);
@@ -67,20 +113,72 @@ void ntfs_timeline(u_int mftSector)
       mft_stdinfo = (NTFS_ATTR_HEADER_R*)ntfs_find_attribute(tmft, NTFS_MFT_ATTRIBUTE_STDINFO, 0);
       entry_stdinfo = (NTFS_ENTRY_STDINFO*)((char*)mft_stdinfo + mft_stdinfo->contentOffset);
       // 作成日時
-      // [TODO] 実際には作成日時
-      unixtime = ts_file2unix(entry_stdinfo->tsModified);
+      unixtime = ts_file2unix(entry_stdinfo->tsCreated);
       ts_unix2date(unixtime, &datetime);
-      fb_printf(" Created : %d-%d-%d %d:%d:%d\n",
-		datetime.year, datetime.month, datetime.day,
-		datetime.hour, datetime.minute, datetime.second);
+
+      // データを格納
+      current_link->mftref   = tmft->MFTRecNumber;
+      current_link->unixtime = unixtime;
       
+      // 最初のデータ
+      if (current_link == timeline) {
+	current_link = NULL;
+	goto timeline_loop;
+      }
+
+      // リストに繋げる入れる
+      for(seek = &st_link; seek->flink != NULL; seek = seek->flink) {
+	// 自己参照
+	if (seek->flink == seek) {
+	  fb_debug("Detected an infinite loop!", ER_FATAL);
+	  free(mft_list, trun->length);
+	  goto timeline_return;
+	}
+
+	if (seek->flink->unixtime >= current_link->unixtime) {
+	  // 次のデータが自分より大きい
+	  // [TODO] unixtimeが同じ場合はmftrefを比較
+	  current_link->flink = seek->flink;
+	  seek->flink = current_link;
+	  break;
+	}
+	if (seek->flink->flink == NULL) {
+	  // 自分が最大
+	  current_link->flink = NULL;
+	  seek->flink->flink = current_link;
+	  break;
+	}
+      }
+      
+    timeline_loop:
+      current_link = (NTFS_TIMELINE*)((char*)current_link + sizeof(NTFS_TIMELINE));
       mft_list += ntfs_info.bytesPerSector * ntfs_info.sectorsPerRecord;
     }
 
     free(mft_list, trun->length);
   }
 
+  // タイムラインを表示
+  for(seek = &st_link; seek->flink != NULL; seek = seek->flink) {
+    // 時刻
+    ts_unix2date(seek->flink->unixtime, &datetime);
+    fb_printf("[%d-%d-%d %d:%d:%d] ",
+	      datetime.year, datetime.month, datetime.day,
+	      datetime.hour, datetime.minute, datetime.second);
+    fb_printx(seek->flink->mftref);
+    // ファイルパス
+    ///*
+    if (enable_filepath) {
+      filepath = ntfs_getpath(mftSector, seek->flink->mftref);
+      fb_print(" ");
+      fb_printf(" %s\n", filepath);
+      free(filepath, 1);
+    } else {
+      fb_print("\n");
+    }
+  }
+
  timeline_return:
   free(mft, ntfs_info.sectorsPerRecord);
-  //free(timeline, 0x1000);
+  free(timeline, 0x100);
 }

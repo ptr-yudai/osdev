@@ -18,7 +18,7 @@ void k_shell(void)
   // コマンド受付
   while(1) {
     // free忘れを検知
-    freechk_b = malloc(1);
+    freechk_b = malloc(FREE_CHECK_FUEL);
     if (freechk_b > freechk_f) {
       fb_debug("Did you call free appropriately?\n", ER_CATION);
     }
@@ -28,8 +28,9 @@ void k_shell(void)
     fb_printf("[0x%x]# ", sh_info.mftref);
     kb_getline(cmd);
 
+    // freeチェック
     freechk_f = freechk_b;
-    free(freechk_b, 1);
+    free(freechk_b, FREE_CHECK_FUEL);
 
     // 結果用画面を初期化
     scr_switch(2);
@@ -68,7 +69,11 @@ void k_shell(void)
 	  ntfs_ls(sh_info.mftSector, sh_info.mftref);
 	} else if (argc == 2) {
 	  // 引数が指定されればそのディレクトリを見る
-	  ntfs_ls(sh_info.mftSector, atoi(argv[1], 16));
+	  if (strncmp(argv[1], "-f", 3) == 0) {
+	    ntfs_fls(sh_info.mftSector, sh_info.mftref);
+	  } else {
+	    ntfs_ls(sh_info.mftSector, atoi(argv[1], 16));
+	  }
 	} else if (argc == 3) {
 	  if (strncmp(argv[1], "-f", 3) == 0) {
 	    ntfs_fls(sh_info.mftSector, atoi(argv[2], 16));
@@ -81,7 +86,17 @@ void k_shell(void)
       if (sh_info.mftSector == 0) {
 	fb_debug("$MFT Sector is required. (not initialized)\n", ER_CATION);
       } else {
-	ntfs_icat(sh_info.mftSector, atoi(argv[1], 16));
+	if (argc == 2) {
+	  ntfs_icat(sh_info.mftSector, atoi(argv[1], 16), 0, 0, 0);
+	} else if (argc == 3) {
+	  ntfs_icat(sh_info.mftSector, atoi(argv[1], 16), atoi(argv[2], 16), 0, 0);
+	} else if (argc > 3) {
+	  if (strncmp(argv[3], "--raw", 6) == 0) {
+	    ntfs_icat(sh_info.mftSector, atoi(argv[1], 16), atoi(argv[2], 16), NTFS_ICAT_MODE_RAW, 0);
+	  } else if (strncmp(argv[3], "--hex", 6) == 0) {
+	    ntfs_icat(sh_info.mftSector, atoi(argv[1], 16), atoi(argv[2], 16), NTFS_ICAT_MODE_HEX, atoi(argv[4], 16));
+	  }
+	}
       }
     }
     // istat - ファイル詳細取得
