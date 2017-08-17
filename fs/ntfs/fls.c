@@ -79,6 +79,8 @@ void ntfs_fls(u_int mftSector, u_int mftref)
 	    fb_print("*DELETED* [FILE] ID:");
 	  }
 	  fb_printx(tmft->MFTRecNumber);
+	  fb_print("  SIZE: ");
+	  fb_printx(entry_filename->physicalSize);
 	  fb_printf("  %s\n", filename);
 	}
       }
@@ -171,6 +173,8 @@ void ntfs_ls(u_int mftSector, u_int mftref)
 	  fb_print("[FILE] ID:");
 	}
 	fb_printx(inode->mftref & (u_int)0x00FFFFFFffffffff);
+	fb_print("  SIZE:");
+	fb_printx(rec_filename->physicalSize);
 	fb_printf("  %s\n", filename);
 
 	// 代替データストリームを探索
@@ -184,7 +188,7 @@ void ntfs_ls(u_int mftSector, u_int mftref)
 		   (void*)((char*)tmft_data + tmft_data->nameOffset),
 		   tmft_data->nameLength * 2);
 	    unicode2ascii(adsname, tmft_data->nameLength);
-	    fb_printf("                      %s:%s\n", filename, adsname);
+	    fb_printf("                                       %s:%s\n", filename, adsname);
 	  }
 	}
 	

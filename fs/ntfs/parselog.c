@@ -56,18 +56,19 @@ void ntfs_parselog(u_int mftSector)
     break;
   case NTFS_CARVING_FILESIZE:
     b_clue[0] = 0x00;
-    fb_print("Which "
-	     "1) Larger than"
-	     "2) Smaller than"
+    fb_print("How would you like to compare the filesize?\n"
+	     "1) Larger than\n"
+	     "2) Smaller than\n"
 	     "3) Equal to\n");
     while(b_clue[0] < 1 || b_clue[0] > 3) {
       fb_print(">> ");
-      if (kb_getnumber(i_clue) == 0) {
+      if (kb_getnumber(&i_clue) == 0) {
 	fb_debug("Invalid option specified.\n", ER_CATION);
       }
+      b_clue[0] = i_clue;
     }
     i_clue = -1;
-    while(i_clue > 0) {
+    while(i_clue < 0) {
       fb_print("Filesize: ");
       if (kb_getnumber(&i_clue)) break;
       fb_debug("Invalid data specified.\n", ER_CATION);

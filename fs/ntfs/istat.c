@@ -62,6 +62,9 @@ void ntfs_istat(u_int mftSector, u_int mftref)
     fb_printf(" Accessed: %d-%d-%d %d:%d:%d\n",
 	      datetime.year, datetime.month, datetime.day,
 	      datetime.hour, datetime.minute, datetime.second);  
+    // サイズ
+    fb_printf("Logical size : 0x%x\n", entry_filename->logicalSize);
+    fb_printf("Physical size: 0x%x\n", entry_filename->physicalSize);
   
   // STANDARD_INFORMATION属性を取得
   fb_print("----- STANDARD_INFORMATION -----\n");

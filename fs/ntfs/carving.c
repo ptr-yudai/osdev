@@ -11,7 +11,7 @@
  */
 void ntfs_carving(char* data, u_int size, u_int option, char* b_clue, int i_clue)
 {
-  int i, j;
+  int i, j, k;
   char *ptr, *end_ptr;
   char* filename = (char*)malloc(1);     // ファイル名
   NTFS_MFT              *mft;            // MFTレコード
@@ -55,21 +55,19 @@ void ntfs_carving(char* data, u_int size, u_int option, char* b_clue, int i_clue
       } else if (option == NTFS_CARVING_FILESIZE) {
 	switch(b_clue[0]) {
 	case NTFS_CARVING_FILESIZE_LARGER: // 大きい
-	  if (entry_filename->physicalSize > (u_int)i_clue) {
+	  fb_printf("%x, %x\n", i_clue, entry_filename->logicalSize);
+	  if (entry_filename->logicalSize > (u_int)i_clue) {
 	    fb_printf("Found %s (MFT Reference Number = 0x%x)\n", filename, mft->MFTRecNumber);
-	    break;
 	  }
 	  break;
 	case NTFS_CARVING_FILESIZE_SMALLER: // 小さい
-	  if (entry_filename->physicalSize < (u_int)i_clue) {
+	  if (entry_filename->logicalSize < (u_int)i_clue) {
 	    fb_printf("Found %s (MFT Reference Number = 0x%x)\n", filename, mft->MFTRecNumber);
-	    break;
 	  }
 	  break;
 	case NTFS_CARVING_FILESIZE_EQUAL: // 等しい
-	  if (entry_filename->physicalSize == (u_int)i_clue) {
+	  if (entry_filename->logicalSize == (u_int)i_clue) {
 	    fb_printf("Found %s (MFT Reference Number = 0x%x)\n", filename, mft->MFTRecNumber);
-	    break;
 	  }
 	  break;
 	}
@@ -108,6 +106,11 @@ void ntfs_carving(char* data, u_int size, u_int option, char* b_clue, int i_clue
 	    trun = ntfs_extract_runlist(runlist, (u_int)j);
 	    if (trun == NULL) break;
 	    sec_data = (char*)ntfs_find_data(runlist, (u_int)j);
+	    for(k = 0; k < trun->length * ntfs_info.sectorsPerCluster; ++k) {
+	      //
+	      // [TODO] シグネチャカービング
+	      //
+	    }
 	  }
 	  free(runlist, 1);
 	}
